@@ -1,0 +1,13 @@
+Student Dashboard
+QR SYSTEM
+Student opens scan page
+↓
+Camera scans mess QR code
+↓
+QR contains meal_id
+↓
+Frontend sends data to backend
+↓
+Backend logs attendance
+↓
+Admin dashboard updates
