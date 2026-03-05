@@ -1,0 +1,112 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+}
+
+.container {
+    max-width: 420px;
+    margin: auto;
+    padding: 20px;
+}
+
+.profile-card {
+    display: flex;
+    gap: 15px;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    align-items: center;
+}
+
+.avatar {
+    border-radius: 50%;
+}
+
+.snap-section {
+    text-align: center;
+    margin: 25px 0;
+}
+
+.snap-btn {
+    background: #2e7d32;
+    color: white;
+    font-size: 18px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.qr-card, .impact-card, .diet-card, .suggestion-card {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.rewards {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.reward-card {
+    min-width: 120px;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.reward-card span {
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+.streak {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.day {
+    padding: 10px;
+    border-radius: 8px;
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+}
+
+.done { background: #c8e6c9; }
+.miss { background: #ffcdd2; }
+
+.leaderboard {
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.redeem-btn {
+    width: 100%;
+    padding: 15px;
+    background: #1b5e20;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+}
+
+.footer-note {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
+    color: gray;
+}
