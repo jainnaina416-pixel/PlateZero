@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<title>PlateZero Admin Dashboard</title>
+
+<link rel="stylesheet" href="style2.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📊 PlateZero Admin Dashboard</h1>
+<p class="subtitle">Real-time mess analytics & sanitation insights</p>
+
+
+<!-- Top Stats -->
+
+<div class="stats">
+
+<div class="stat-card">
+<h3>Waste Reduced Today</h3>
+<p class="big">18.4 kg</p>
+</div>
+
+<div class="stat-card">
+<h3>Estimated Savings</h3>
+<p class="big">₹4,320</p>
+</div>
+
+<div class="stat-card">
+<h3>Student Participation</h3>
+<p class="big">72%</p>
+</div>
+
+<div class="stat-card">
+<h3>EcoPoints Issued</h3>
+<p class="big">12,450 pts</p>
+</div>
+
+</div>
+
+
+<!-- Waste Trends -->
+
+<h2>📈 Waste Reduction Trends</h2>
+
+<div class="chart-placeholder">
+(Chart: Waste decreasing over days/meals)
+</div>
+
+
+<!-- Meal Analysis -->
+
+<h2>🍛 Meal Analysis</h2>
+
+<table>
+
+<tr>
+<th>Meal</th>
+<th>Avg Waste Before</th>
+<th>Current Waste</th>
+<th>Reduction</th>
+</tr>
+
+<tr>
+<td>Breakfast</td>
+<td>12 kg</td>
+<td>6.5 kg</td>
+<td>46%</td>
+</tr>
+
+<tr>
+<td>Lunch</td>
+<td>25 kg</td>
+<td>15 kg</td>
+<td>40%</td>
+</tr>
+
+<tr>
+<td>Dinner</td>
+<td>18 kg</td>
+<td>10 kg</td>
+<td>44%</td>
+</tr>
+
+</table>
+
+
+<!-- Sanitation Suggestions -->
+
+<h2>🧼 Sanitation Suggestions</h2>
+
+<div class="sanitation-card">
+
+<h3>Cleanliness Indicators</h3>
+
+<ul>
+<li>🍽 Peak mess crowd: Lunch (12:30–1:30 PM)</li>
+<li>⚠ Highest leftover rate: Tuesday Dinner (15%)</li>
+<li>🧹 Frequent complaints: Utensil hygiene on Monday lunch</li>
+</ul>
+
+<p><b>Suggested Action Steps:</b></p>
+
+<ul>
+<li>📌 Increase utensil cleaning staff during peak hours</li>
+<li>👨‍🍳 Reduce portion of dishes with high leftovers</li>
+<li>🔔 Conduct hygiene reminder announcements daily</li>
+</ul>
+
+<p class="small-note">
+Data driven from waste patterns & student feedback
+</p>
+
+</div>
+
+
+<!-- Smart Insights -->
+
+<h2>💡 Smart Operational Insights</h2>
+
+<div class="insight-card">
+
+<p>Based on waste data:</p>
+
+<ul>
+<li>📍 Paneer curry wasted mostly on Mondays → Prep -15%</li>
+<li>🍛 Opt for fruit cup additions for balanced plates</li>
+<li>🕐 Suggest lunch timing notifications to students</li>
+</ul>
+
+</div>
+
+
+<!-- ESG Report -->
+
+<h2>📄 Sustainability Report</h2>
+
+<button class="report-btn">Generate ESG / NIRF Report</button>
+
+<h2>📱 PlateZero QR Attendance</h2>
+
+<select id="meal">
+<option value="BREAKFAST">BREAKFAST</option>
+<option value="LUNCH">LUNCH</option>
+<option value="DINNER">DINNER</option>
+</select>
+
+<button type="button" onclick="generateQR()">Generate QR</button>
+
+<br><br>
+
+<div id="qrBox"></div>
+
+<h3 id="session"></h3>
+
+<h3>Live Attendance: <span id="attendance">0</span></h3>
+<script>
+
+let mealID = null
+let qrInstance = null
+
+async function generateQR(){
+
+let meal = document.getElementById("meal").value
+
+const res = await fetch(
+`http://127.0.0.1:8000/generate_qr/${meal}`
+)
+
+const data = await res.json()
+
+mealID = data.meal_id
+
+document.getElementById("session").innerText =
+"Session ID: " + mealID
+
+// clear previous QR
+document.getElementById("qrBox").innerHTML = ""
+
+// generate new QR
+qrInstance = new QRCode(document.getElementById("qrBox"), {
+    text: data.qr_data,
+    width: 220,
+    height: 220
+})
+
+}
+
+async function updateAttendance(){
+
+if(!mealID) return
+
+let res = await fetch(
+`http://127.0.0.1:8000/attendance/${mealID}`
+)
+
+let data = await res.json()
+
+document.getElementById("attendance").innerText =
+data.attendance
+
+}
+
+setInterval(updateAttendance,3000)
+
+</script>
+
+
+</body>
+</html>
