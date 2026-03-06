@@ -1,49 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlateZero Register</title>
     <link rel="stylesheet" href="style3.css">
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <div class="profile-card" style="justify-content:center;">
-        <h2>🌿 Join PlateZero</h2>
+        <div class="profile-card" style="justify-content:center;">
+            <h2>🌿 Join PlateZero</h2>
+        </div>
+
+        <div class="form-card">
+            <form id="registerForm">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="Enter your name" required>
+
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="Enter college email" required>
+
+                <label>Role</label>
+                <select id="regRole" required
+                    style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc;">
+                    <option value="student">Student</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <label>Hostel / Block</label>
+                <input type="text" id="regHostel" placeholder="e.g. A Block" required>
+
+                <label>Password</label>
+                <input type="password" id="regPassword" placeholder="Create password" required>
+
+                <button type="submit" class="snap-btn">Register</button>
+                <p id="regMessage" style="color: #d9534f; margin-top: 10px;"></p>
+            </form>
+        </div>
+
+        <p class="footer-note">
+            Already registered? <a href="login.html">Go to Dashboard</a>
+        </p>
+
     </div>
 
-    <div class="form-card">
-        <form>
-            <label>Full Name</label>
-            <input type="text" placeholder="Enter your name" required>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const role = document.getElementById('regRole').value;
+            const hostel = document.getElementById('regHostel').value;
+            const password = document.getElementById('regPassword').value;
 
-            <label>Email</label>
-            <input type="email" placeholder="Enter college email" required>
+            try {
+                const res = await fetch("http://127.0.0.1:8000/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ name, email, role, hostel, password })
+                });
+                const data = await res.json();
 
-            <label>Hostel / Block</label>
-            <input type="text" placeholder="e.g. A Block" required>
-
-            <label>Password</label>
-            <input type="password" placeholder="Create password" required>
-
-            <button type="submit" class="snap-btn">Register</button>
-        </form>
-    </div>
-
-    <p class="footer-note">
-        Already registered? <a href="login.html">Go to Dashboard</a>
-        
-        
-
-
-    </p>
-
-</div>
+                if (data.status === "success") {
+                    window.location.href = "login.html";
+                } else {
+                    document.getElementById('regMessage').innerText = data.message;
+                }
+            } catch (err) {
+                document.getElementById('regMessage').innerText = "Failed to connect to server.";
+            }
+        });
+    </script>
 
 </body>
+
 </html>
-
-
-    

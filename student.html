@@ -1,103 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>PlateZero Student Dashboard</title>
+
     <link rel="stylesheet" href="style1.css">
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        #reader {
+            width: 260px;
+            margin: auto;
+        }
+    </style>
+
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <!-- Profile Section -->
-    <div class="profile-card">
-        
-        <div>
-            <h2>Naina Jain</h2>
-            <p>🌿 Green Leader - Level 3</p>
-            <p>🔥 Streak: 7 meals | ⭐ 1240 EcoPoints</p>
+        <!-- Profile Section -->
+
+        <div class="profile-card">
+
+            <div>
+                <h2>Naina Jain</h2>
+                <p>🌿 Green Leader - Level 3</p>
+                <p>🔥 Streak: 7 meals | ⭐ 1240 EcoPoints</p>
+            </div>
+
         </div>
+
+
+        <!-- Snap Button -->
+
+        <div class="snap-section">
+
+            <button class="snap-btn">📷 SNAP CLEAN PLATE</button>
+
+            <p>Breakfast valid till 10:30 AM</p>
+
+        </div>
+
+        <!-- QR Scan Section -->
+
+        <h3>📍 Mess Entry Scan</h3>
+
+        <div class="qr-card">
+
+            <div id="reader"></div>
+
+            <p id="scanStatus">Scan mess QR to mark attendance</p>
+
+        </div>
+
+
+        <!-- Rewards -->
+
+        <h3>🎁 Rewards You Can Redeem</h3>
+
+        <div class="rewards">
+
+            <div class="reward-card">🍨 Ice Cream<br><span>300 pts</span></div>
+
+            <div class="reward-card">☕ Coffee BOGO<br><span>450 pts</span></div>
+
+            <div class="reward-card">📜 Certificate<br><span>2000 pts</span></div>
+
+            <div class="reward-card">❤️ Donate Meal<br><span>150 pts</span></div>
+
+        </div>
+
+
+        <!-- Impact -->
+
+        <div class="impact-card">
+
+            <h3>Your Impact This Week</h3>
+
+            <p>🥗 Prevented <b>2.3 kg</b> food waste</p>
+
+            <p>💰 Saved mess <b>₹180</b></p>
+
+            <p>🏆 Rank: <b>#12 in Hostel</b></p>
+
+        </div>
+
+
+        <!-- Streak -->
+
+        <h3>🔥 Your Streak</h3>
+
+        <div class="streak">
+
+            <div class="day done">Mon</div>
+
+            <div class="day done">Tue</div>
+
+            <div class="day done">Wed</div>
+
+            <div class="day miss">Thu</div>
+
+            <div class="day done">Fri</div>
+
+        </div>
+
+
+        <!-- Leaderboard -->
+
+        <h3>🏅 Today's Leaderboard</h3>
+
+        <div class="leaderboard">
+
+            <div>1. Aarav - 180 pts</div>
+
+            <div>2. Meera - 150 pts</div>
+
+            <div>3. Rohan - 130 pts</div>
+
+            <div>4. You - 120 pts</div>
+
+        </div>
+
+
+        <!-- Dietary Summary -->
+
+        <h3>🥗 Today’s Dietary Summary</h3>
+
+        <div class="diet-card">
+
+            <p>🍛 Paneer Curry – 320 kcal</p>
+
+            <p>🍚 Rice – 210 kcal</p>
+
+            <p>🥖 Roti – 110 kcal</p>
+
+            <p>🥣 Dal – 180 kcal</p>
+
+            <hr>
+
+            <p><b>Total Calories: 820 kcal</b></p>
+
+        </div>
+
+
+        <!-- Dietary Suggestions -->
+
+        <h3>💡 Dietary Suggestions</h3>
+
+        <div class="suggestion-card">
+
+            <ul>
+
+                <li>🥒 Add a bowl of salad for more fiber</li>
+
+                <li>🍎 Have a fruit in the evening</li>
+
+                <li>💧 Drink 2 extra glasses of water</li>
+
+                <li>🚶 Light 15 min walk recommended</li>
+
+            </ul>
+
+        </div>
+
+
+        <button class="redeem-btn">Redeem EcoPoints</button>
+
+        <p class="footer-note">
+            Works only inside mess during meal hours 📍
+        </p>
+
     </div>
 
-    <!-- Snap Button -->
-    <div class="snap-section">
-        <button class="snap-btn">📷 SNAP CLEAN PLATE</button>
-        <p>Breakfast valid till 10:30 AM</p>
-    </div>
 
-    <!-- QR Scan Section -->
-    <h3>📍 Mess Entry Scan</h3>
-    <div class="qr-card">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=http://localhost:8080/meal/start">
-        <p>Scan this QR at mess entrance</p>
-    </div>
 
-    <!-- Rewards -->
-    <h3>🎁 Rewards You Can Redeem</h3>
-    <div class="rewards">
-        <div class="reward-card">🍨 Ice Cream<br><span>300 pts</span></div>
-        <div class="reward-card">☕ Coffee BOGO<br><span>450 pts</span></div>
-        <div class="reward-card">📜 Certificate<br><span>2000 pts</span></div>
-        <div class="reward-card">❤️ Donate Meal<br><span>150 pts</span></div>
-    </div>
 
-    <!-- Impact -->
-    <div class="impact-card">
-        <h3>Your Impact This Week</h3>
-        <p>🥗 Prevented <b>2.3 kg</b> food waste</p>
-        <p>💰 Saved mess <b>₹180</b></p>
-        <p>🏆 Rank: <b>#12 in Hostel</b></p>
-    </div>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-    <!-- Streak -->
-    <h3>🔥 Your Streak</h3>
-    <div class="streak">
-        <div class="day done">Mon</div>
-        <div class="day done">Tue</div>
-        <div class="day done">Wed</div>
-        <div class="day miss">Thu</div>
-        <div class="day done">Fri</div>
-    </div>
+    <script>
+        // Auth check
+        if (!localStorage.getItem("student_id") || localStorage.getItem("student_role") !== "student") {
+            window.location.href = "login.html";
+        }
 
-    <!-- Leaderboard -->
-    <h3>🏅 Today's Leaderboard</h3>
-    <div class="leaderboard">
-        <div>1. Aarav - 180 pts</div>
-        <div>2. Meera - 150 pts</div>
-        <div>3. Rohan - 130 pts</div>
-        <div>4. You - 120 pts</div>
-    </div>
+        // Update name from auth
+        document.addEventListener("DOMContentLoaded", () => {
+            const nameEl = document.querySelector(".profile-card h2");
+            if (nameEl && localStorage.getItem("student_name")) {
+                nameEl.innerText = localStorage.getItem("student_name") + " (Logout)";
+                nameEl.style.cursor = "pointer";
+                nameEl.onclick = () => {
+                    localStorage.removeItem("student_id");
+                    localStorage.removeItem("student_name");
+                    localStorage.removeItem("student_role");
+                    window.location.href = "login.html";
+                };
+            }
+        });
 
-    <!-- Dietary Summary -->
-    <h3>🥗 Today’s Dietary Summary</h3>
-    <div class="diet-card">
-        <p>🍛 Paneer Curry – 320 kcal</p>
-        <p>🍚 Rice – 210 kcal</p>
-        <p>🥖 Roti – 110 kcal</p>
-        <p>🥣 Dal – 180 kcal</p>
-        <hr>
-        <p><b>Total Calories: 820 kcal</b></p>
-    </div>
+        let lastScanned = null;
 
-    <!-- Dietary Suggestions -->
-    <h3>💡 Dietary Suggestions</h3>
-    <div class="suggestion-card">
-        <ul>
-            <li>🥒 Add a bowl of salad for more fiber</li>
-            <li>🍎 Have a fruit in the evening</li>
-            <li>💧 Drink 2 extra glasses of water</li>
-            <li>🚶 Light 15 min walk recommended</li>
-        </ul>
-    </div>
+        function onScanSuccess(decodedText) {
 
-    <button class="redeem-btn">Redeem EcoPoints</button>
+            if (decodedText === lastScanned) {
+                return; // Prevents multiple scans of the same QR
+            }
+            lastScanned = decodedText;
 
-    <p class="footer-note">
-        Works only inside mess during meal hours 📍
-    </p>
+            let studentID = localStorage.getItem("student_id");
 
-</div>
+            fetch("http://127.0.0.1:8000/scan_qr", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    student_id: studentID,
+                    meal_id: decodedText
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "already_scanned") {
+                        document.getElementById("scanStatus").innerText = "⚠ Already scanned"
+                    } else {
+                        document.getElementById("scanStatus").innerText = "✅ Attendance recorded"
+                    }
+                })
+                .catch(err => {
+                    lastScanned = null;
+                });
 
+        }
+
+        let scanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: 250 }
+        )
+
+        scanner.render(onScanSuccess)
+
+    </script>
 </body>
+
 </html>

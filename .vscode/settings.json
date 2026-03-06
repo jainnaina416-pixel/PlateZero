@@ -1,3 +1,10 @@
 {
-    "liveServer.settings.multiRootWorkspaceName": "d.py"
+    "liveServer.settings.multiRootWorkspaceName": "d.py",
+    "liveServer.settings.ignoreFiles": [
+        "**/*.db",
+        "**/*.sqlite",
+        "**/*-journal",
+        "**/*-wal",
+        "**/*-shm"
+    ]
 }
