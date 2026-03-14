@@ -1,10 +1,8 @@
 # fraud_detection.py
-# Checks: Duplicate image, Similar images (cross-account), Timestamp, Location,
-#         Screen-recapture / photographed-screen anti-spoofing
+# Checks: Duplicate image, Similar images (cross-account), Timestamp, Location
 
 import imagehash
-import numpy as np
-from PIL import Image, ExifTags
+from PIL import Image
 import sqlite3
 import time
 import os
