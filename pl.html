@@ -1,61 +1,907 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlateZero</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlateZero – Eat Clean, Earn Green</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #1db954;
+      --green-light: #23e066;
+      --green-dim: rgba(29,185,84,0.15);
+      --bg: #0a0f0a;
+      --bg2: #111811;
+      --bg3: #172217;
+      --surface: #1a221a;
+      --surface2: #1f2b1f;
+      --border: rgba(29,185,84,0.18);
+      --text: #e8f5e9;
+      --text2: #8fbc8f;
+      --text3: #5a7a5a;
+      --gold: #f5c518;
+      --amber: #ff9500;
+      --red: #ff4d4d;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* Noise */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+      animation: blobFloat 10s ease-in-out infinite alternate;
+    }
+    .blob1 { width: 500px; height: 500px; background: rgba(29,185,84,0.07); top: -150px; right: -100px; }
+    .blob2 { width: 350px; height: 350px; background: rgba(29,185,84,0.05); bottom: 20vh; left: -80px; animation-delay: -5s; }
+    .blob3 { width: 280px; height: 280px; background: rgba(245,197,24,0.04); top: 50vh; right: 10%; animation-delay: -2s; }
+
+    @keyframes blobFloat {
+      from { transform: translateY(0) scale(1); }
+      to   { transform: translateY(40px) scale(1.06); }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 48px;
+      background: rgba(10,15,10,0.82);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--green);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link {
+      color: var(--text3);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { color: var(--text2); background: var(--surface); }
+
+    .nav-cta {
+      background: var(--green);
+      color: #000;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 9px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      margin-left: 8px;
+      transition: all 0.2s;
+    }
+    .nav-cta:hover { background: var(--green-light); transform: scale(1.02); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--green-dim);
+      border: 1px solid rgba(29,185,84,0.3);
+      color: var(--green);
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 28px;
+      animation: fadeSlideUp 0.6s ease both;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 1.5s infinite;
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      line-height: 1.08;
+      letter-spacing: -1.5px;
+      color: var(--text);
+      max-width: 820px;
+      margin-bottom: 24px;
+      animation: fadeSlideUp 0.6s 0.1s ease both;
+    }
+    .hero-title .accent { color: var(--green); }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text2);
+      max-width: 560px;
+      line-height: 1.65;
+      margin-bottom: 40px;
+      animation: fadeSlideUp 0.6s 0.2s ease both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 64px;
+      animation: fadeSlideUp 0.6s 0.3s ease both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green);
+      color: #000;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 13px 28px;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(29,185,84,0.25); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      color: var(--text2);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 13px 28px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { background: var(--surface2); color: var(--text); transform: translateY(-2px); }
+
+    /* Hero stats strip */
+    .hero-stats {
+      display: flex;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      animation: fadeSlideUp 0.6s 0.4s ease both;
+    }
+    .hero-stat {
+      background: var(--surface);
+      padding: 18px 32px;
+      text-align: center;
+      flex: 1;
+      transition: background 0.2s;
+    }
+    .hero-stat:hover { background: var(--surface2); }
+    .hero-stat .h-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--green);
+    }
+    .hero-stat .h-lbl {
+      font-size: 0.72rem;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 96px 48px;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--text2);
+      max-width: 520px;
+      line-height: 1.65;
+      margin-bottom: 48px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .step-card:hover { transform: translateY(-4px); border-color: rgba(29,185,84,0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .step-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--green), transparent);
+    }
+
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.68rem;
+      letter-spacing: 1.5px;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .step-icon {
+      font-size: 2.2rem;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .step-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .step-desc {
+      font-size: 0.83rem;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-3px); border-color: rgba(29,185,84,0.35); }
+    .feature-card.large { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
+
+    .feature-icon-wrap {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: var(--green-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+
+    .feature-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-size: 0.82rem;
+      color: var(--text2);
+      line-height: 1.65;
+    }
+
+    /* Mini dashboard preview inside feature card */
+    .mini-dash {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .mini-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.78rem;
+    }
+    .mini-row:last-child { border-bottom: none; }
+    .mini-pts {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      color: var(--green);
+      font-size: 0.8rem;
+    }
+    .mini-bar-wrap { width: 80px; height: 5px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+    .mini-bar-fill { height: 100%; background: var(--green); border-radius: 999px; }
+
+    /* ── PROBLEM SECTION ── */
+    .problem-section { background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .problem-text .section-sub { margin-bottom: 28px; }
+
+    .problem-list { list-style: none; }
+    .problem-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.85rem;
+      color: var(--text2);
+    }
+    .problem-list li:last-child { border-bottom: none; }
+    .problem-list li .p-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: var(--green-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .stats-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .stat-row {
+      padding: 22px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row:hover { background: var(--surface2); }
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .stat-icon.green { background: var(--green-dim); }
+    .stat-icon.amber { background: rgba(255,149,0,0.12); }
+    .stat-icon.blue  { background: rgba(77,159,255,0.12); }
+    .stat-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .stat-lbl { font-size: 0.78rem; color: var(--text3); margin-top: 1px; }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .testi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: all 0.3s;
+    }
+    .testi-card:hover { transform: translateY(-3px); border-color: rgba(29,185,84,0.3); }
+
+    .testi-stars { color: var(--gold); font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px; }
+    .testi-text { font-size: 0.85rem; color: var(--text2); line-height: 1.65; margin-bottom: 16px; font-style: italic; }
+    .testi-author { display: flex; align-items: center; gap: 10px; }
+    .testi-av {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+    .testi-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .testi-role { font-size: 0.7rem; color: var(--text3); }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    .cta-inner {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 100px 48px;
+      text-align: center;
+    }
+    .cta-inner .section-title { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 20px; }
+    .cta-inner .section-sub { margin: 0 auto 40px; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--green);
+    }
+    .footer-logo span { color: var(--text3); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-link { font-size: 0.78rem; color: var(--text3); text-decoration: none; transition: color 0.2s; }
+    .footer-link:hover { color: var(--text2); }
+    .footer-copy { font-size: 0.72rem; color: var(--text3); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 14px 20px; }
+      .nav-links .nav-link { display: none; }
+      .section-inner { padding: 64px 20px; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card.large { grid-column: span 1; grid-template-columns: 1fr; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-direction: column; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-    <section class="hero">
-        <img src="plate.jpg" id="pl" /> 
-        <h1>Reduce Mess Food Waste,Save Costs & Our Planet with PlateZero</h1>
 
-    </section>
-    <nav>
-        <a href="pl.html">About</a>
-        <a href="login.html">Login</a>
-       
-    </nav>
-  
-     <div class="container">
-             <p><b>PlateZero is a sustainability-focused platform designed for universities. We reward responsible eating and provide administrators with actionable insights to combat food waste.</b></p>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">Plate<span>Zero</span></a>
+  <div class="nav-links">
+    <a href="#how" class="nav-link">How it Works</a>
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#problem" class="nav-link">Impact</a>
+    <a href="login.html" class="nav-cta">Login →</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="dot"></div>
+    Now live in universities across India
+  </div>
+
+  <h1 class="hero-title">
+    Reduce Mess Food Waste,<br>
+    <span class="accent">Save Costs</span> & Our Planet
+  </h1>
+
+  <p class="hero-sub">
+    PlateZero rewards students for eating responsibly and gives administrators real-time insights to combat food waste — one clean plate at a time.
+  </p>
+
+  <div class="hero-btns">
+    <a href="login.html" class="btn-primary">🚀 Get Started Free</a>
+    <a href="#how" class="btn-secondary">📖 See how it works</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="h-val" id="wasteCount">0%</div>
+      <div class="h-lbl">Food Waste Reduced</div>
+    </div>
+    <div class="hero-stat">
+      <div class="h-val" id="savingsCount">₹0</div>
+      <div class="h-lbl">Monthly Savings</div>
+    </div>
+    <div class="hero-stat">
+      <div class="h-val" id="studentsCount">0+</div>
+      <div class="h-lbl">Students Engaged</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section" id="how">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">⚙️ How it works</div>
+      <h2 class="section-title">Three simple steps to<br>zero food waste</h2>
+      <p class="section-sub">PlateZero makes sustainable eating effortless — for both students and mess administrators.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num">Step 01</div>
+        <span class="step-icon">📷</span>
+        <div class="step-title">Scan & Attend</div>
+        <div class="step-desc">Students scan the mess QR code at entry to mark attendance. No manual registers, no queues — instant and contactless.</div>
+      </div>
+      <div class="step-card reveal" style="transition-delay:0.1s">
+        <div class="step-num">Step 02</div>
+        <span class="step-icon">🍽️</span>
+        <div class="step-title">Snap Your Clean Plate</div>
+        <div class="step-desc">After finishing a meal with zero waste, snap a photo. Our system verifies and rewards you instantly with EcoPoints.</div>
+      </div>
+      <div class="step-card reveal" style="transition-delay:0.2s">
+        <div class="step-num">Step 03</div>
+        <span class="step-icon">🎁</span>
+        <div class="step-title">Earn & Redeem</div>
+        <div class="step-desc">Climb the leaderboard, build streaks, and redeem EcoPoints for real rewards — ice cream, coffee, certificates and more.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">✨ Features</div>
+      <h2 class="section-title">Everything your mess needs,<br>nothing it doesn't</h2>
+      <p class="section-sub">Built for students who want rewards and admins who want results.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card large reveal">
+        <div>
+          <div class="feature-icon-wrap">🏅</div>
+          <div class="feature-title">Gamified Leaderboard</div>
+          <div class="feature-desc" style="margin-bottom:20px;">Students compete for the top spot on hostel leaderboards. Streaks, ranks, and weekly challenges keep engagement high and waste low.</div>
+          <a href="login.html" class="btn-primary" style="font-size:0.8rem;padding:10px 20px;">Try it now →</a>
         </div>
-    
-    <section class="about">
-       
-        
-        <div class="card1">
-            <h2>Reduce Waste</h2>
-            <p>Track and minimize food waste in real-time. Our smart system helps students make conscious decisions about their plate portions.</p>
-         </div>
-        <div class="card1">
-            <h2>Earn Rewards</h2>
-            <p>Students earn points for finishing their meals with zero waste. Redeem points for exciting rewards and recognition.</p>
+        <div class="mini-dash">
+          <div style="font-size:0.7rem;color:var(--text3);margin-bottom:10px;font-weight:600;letter-spacing:0.5px;">🏅 TODAY'S LEADERBOARD</div>
+          <div class="mini-row"><span>🥇 Aarav</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:95%"></div></div><span class="mini-pts">2840</span></div>
+          <div class="mini-row"><span>🥈 Meera</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:82%"></div></div><span class="mini-pts">2610</span></div>
+          <div class="mini-row"><span>🥉 Rohan</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:76%"></div></div><span class="mini-pts">2420</span></div>
+          <div class="mini-row" style="color:var(--green)"><span>4· You</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:39%"></div></div><span class="mini-pts">1240</span></div>
         </div>
-        <div class="card1">
-            <h2>Admin Insights</h2>
-            <p>Comprehensive analytics and reports help administrators make data-driven decisions to optimize mess operations.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon-wrap">📊</div>
+        <div class="feature-title">Admin Insights</div>
+        <div class="feature-desc">Comprehensive real-time analytics — waste by hostel block, meal-wise attendance, weekly trends — all in one clean dashboard.</div>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:0.1s">
+        <div class="feature-icon-wrap">🔥</div>
+        <div class="feature-title">Streak Tracking</div>
+        <div class="feature-desc">Daily clean-plate streaks reward consistency. Miss a day, lose your streak. Keep going, unlock bonus points and badges.</div>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:0.1s">
+        <div class="feature-icon-wrap">🥗</div>
+        <div class="feature-title">Dietary Summary</div>
+        <div class="feature-desc">Students get a calorie breakdown of each meal and personalised dietary tips — making healthy eating effortless.</div>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:0.2s">
+        <div class="feature-icon-wrap">📷</div>
+        <div class="feature-title">Instant QR Attendance</div>
+        <div class="feature-desc">Admins generate a unique QR per meal session. Students scan in seconds. Duplicate scans are auto-detected and blocked.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROBLEM / IMPACT ── -->
+<section class="problem-section" id="problem">
+  <div class="section-inner">
+    <div class="problem-grid">
+      <div class="problem-text reveal">
+        <div class="section-tag">🌍 The Problem</div>
+        <h2 class="section-title">Food waste is a crisis hiding in plain sight</h2>
+        <p class="section-sub">Universities generate massive food waste — not from malice, but because existing systems give students no reason to care. PlateZero changes that.</p>
+        <ul class="problem-list">
+          <li>
+            <div class="p-icon">🍚</div>
+            <span>Students over-serve themselves with no accountability or visibility into waste generated</span>
+          </li>
+          <li>
+            <div class="p-icon">💸</div>
+            <span>Mess administrators spend thousands monthly on food that ends up in the bin</span>
+          </li>
+          <li>
+            <div class="p-icon">🌱</div>
+            <span>No existing system creates positive reinforcement for responsible eating</span>
+          </li>
+          <li>
+            <div class="p-icon">📉</div>
+            <span>Admins lack real-time data to make smart decisions on portion sizes and menu planning</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="stats-card reveal" style="transition-delay:0.15s">
+        <div class="stat-row">
+          <div class="stat-icon green">♻️</div>
+          <div>
+            <div class="stat-val">40%</div>
+            <div class="stat-lbl">Food waste reduced on average</div>
+          </div>
         </div>
-    </section>
-    <section class="stats">
-    
-        <div class="info">
-            <h1>The Problem We're Solving</h1>
-            <p>Food waste is a major issue in universities, with students often over-ordering or leaving uneaten food. PlateZero helps reduce this waste by encouraging responsible eating habits and providing valuable data to administrators.Most of this waste is not intentional; it happens because existing systems do not encourage mindful consumption. PlateZero changes that by creating a culture of sustainability through positive reinforcement.</p>
-            </div>
-        <div class="card">
-            <h2>40% Food waste reduced</h2>
-            <h2>₹50,000 Monthly savings</h2>
-            <h2>10,000+ Students engaged</h2>
-            </div>
-        </section>
+        <div class="stat-row">
+          <div class="stat-icon amber">💰</div>
+          <div>
+            <div class="stat-val">₹50,000</div>
+            <div class="stat-lbl">Monthly savings per university mess</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon blue">👥</div>
+          <div>
+            <div class="stat-val">10,000+</div>
+            <div class="stat-lbl">Students actively engaged</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    
-            
+<!-- ── TESTIMONIALS ── -->
+<section>
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 48px;">
+      <div class="section-tag" style="justify-content:center;">💬 What students say</div>
+      <h2 class="section-title">Real voices, real change</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"I never thought finishing my dal would earn me a free coffee. PlateZero makes me actually think before piling food on my plate."</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:linear-gradient(135deg,#1db954,#0a7d2e);color:#fff;">NJ</div>
+          <div><div class="testi-name">Naina Jain</div><div class="testi-role">B.Tech 2nd Year · Block A</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal" style="transition-delay:0.1s">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"The leaderboard is addictive. My whole hostel floor is now competing to keep their streaks alive. Waste in our block dropped massively."</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:linear-gradient(135deg,#f5c518,#e08a00);color:#000;">AA</div>
+          <div><div class="testi-name">Aarav Agarwal</div><div class="testi-role">MBA 1st Year · Block C</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal" style="transition-delay:0.2s">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"As mess admin, I now have data I never had before. I can see exactly which meal generates the most waste and adjust accordingly."</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:linear-gradient(135deg,#4d9fff,#0050c0);color:#fff;">RK</div>
+          <div><div class="testi-name">Rajesh Kumar</div><div class="testi-role">Mess Superintendent · Block B</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="reveal">
+      <div class="section-tag" style="justify-content:center;">🚀 Get started</div>
+      <h2 class="section-title">Ready to make your<br>mess <span style="color:var(--green);">waste-free?</span></h2>
+      <p class="section-sub">Join thousands of students already earning EcoPoints and making a real difference — one clean plate at a time.</p>
+      <div class="hero-btns">
+        <a href="login.html" class="btn-primary">🎓 Student Login</a>
+        <a href="login.html" class="btn-secondary">🏢 Admin Login</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-   
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">Plate<span>Zero</span></div>
+  <div class="footer-links">
+    <a href="#" class="footer-link">About</a>
+    <a href="#how" class="footer-link">How it Works</a>
+    <a href="#features" class="footer-link">Features</a>
+    <a href="login.html" class="footer-link">Login</a>
+  </div>
+  <div class="footer-copy">© 2025 PlateZero · Built for a sustainable campus</div>
+</footer>
 
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Animated counters
+  function animateCount(el, target, prefix, suffix, duration) {
+    duration = duration || 2000;
+    prefix = prefix || '';
+    suffix = suffix || '';
+    const start = performance.now();
+    const update = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(eased * target);
+      el.textContent = prefix + current.toLocaleString('en-IN') + suffix;
+      if (progress < 1) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+  }
+
+  // Trigger counters when hero stats are in view
+  let countersTriggered = false;
+  const statsObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !countersTriggered) {
+      countersTriggered = true;
+      animateCount(document.getElementById('wasteCount'), 40, '', '%');
+      animateCount(document.getElementById('savingsCount'), 50000, '₹', '');
+      animateCount(document.getElementById('studentsCount'), 10000, '', '+');
+    }
+  }, { threshold: 0.5 });
+  statsObserver.observe(document.querySelector('.hero-stats'));
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if (href === '#') return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
 </body>
 </html>

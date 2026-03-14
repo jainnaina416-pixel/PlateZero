@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlateZero – Create Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:#1db954;--green-light:#23e066;--green-dim:rgba(29,185,84,0.15);
+      --bg:#0a0f0a;--bg2:#111811;--bg3:#172217;
+      --surface:#1a221a;--surface2:#1f2b1f;
+      --border:rgba(29,185,84,0.18);
+      --text:#e8f5e9;--text2:#8fbc8f;--text3:#5a7a5a;
+      --amber:#ff9500;--red:#ff4d4d;--radius:18px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4;}
+    .blob{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;animation:blobFloat 9s ease-in-out infinite alternate;}
+    .blob1{width:500px;height:500px;background:rgba(29,185,84,.08);top:-180px;left:-120px;}
+    .blob2{width:350px;height:350px;background:rgba(29,185,84,.05);bottom:-80px;right:-80px;animation-delay:-4s;}
+    .blob3{width:220px;height:220px;background:rgba(77,166,255,.04);top:50%;right:30%;animation-delay:-7s;}
+    @keyframes blobFloat{from{transform:translateY(0) scale(1);}to{transform:translateY(30px) scale(1.06);}}
+    @keyframes fadeSlideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    @keyframes checkPop{0%{transform:scale(0);}70%{transform:scale(1.2);}100%{transform:scale(1);}}
+
+    /* ── LAYOUT ── */
+    .page{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.4fr;min-height:100vh;width:100%;}
+
+    /* ── LEFT PANEL ── */
+    .left-panel{display:flex;flex-direction:column;justify-content:space-between;padding:48px;background:linear-gradient(160deg,var(--bg3) 0%,var(--bg) 100%);border-right:1px solid var(--border);position:relative;overflow:hidden;}
+    .left-panel::after{content:'';position:absolute;top:-60px;left:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(29,185,84,.1) 0%,transparent 70%);pointer-events:none;}
+    .brand-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--green);letter-spacing:-.5px;text-decoration:none;}
+    .brand-logo span{color:var(--text);}
+    .brand-tagline{font-size:.8rem;color:var(--text3);margin-top:6px;}
+    .left-content{flex:1;display:flex;flex-direction:column;justify-content:center;padding:48px 0 32px;}
+    .left-headline{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;line-height:1.12;letter-spacing:-1px;color:var(--text);margin-bottom:14px;}
+    .left-headline .accent{color:var(--green);}
+    .left-sub{font-size:.88rem;color:var(--text2);line-height:1.65;max-width:320px;margin-bottom:32px;}
+
+    /* Steps indicator */
+    .steps-list{display:flex;flex-direction:column;gap:0;}
+    .step-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04);position:relative;}
+    .step-item:last-child{border-bottom:none;}
+    .step-item.done .step-num{background:var(--green);color:#000;border-color:var(--green);}
+    .step-item.active .step-num{background:var(--green-dim);color:var(--green);border-color:rgba(29,185,84,.5);box-shadow:0 0 0 4px rgba(29,185,84,.12);}
+    .step-num{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.82rem;color:var(--text3);flex-shrink:0;transition:all .3s;}
+    .step-info{}
+    .step-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+    .step-item:not(.active):not(.done) .step-title{color:var(--text3);}
+    .step-desc{font-size:.72rem;color:var(--text3);line-height:1.4;}
+    .step-item.active .step-desc{color:var(--text2);}
+
+    .left-footer{font-size:.72rem;color:var(--text3);}
+    .left-footer a{color:var(--green);text-decoration:none;}
+
+    /* ── RIGHT PANEL ── */
+    .right-panel{display:flex;align-items:flex-start;justify-content:center;padding:48px 48px;background:var(--bg);overflow-y:auto;}
+    .reg-box{width:100%;max-width:500px;animation:fadeSlideUp .5s ease both;}
+
+    /* Page tabs */
+    .page-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px;margin-bottom:24px;gap:4px;}
+    .page-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--text3);transition:all .2s;border:none;background:none;font-family:'DM Sans',sans-serif;text-decoration:none;}
+    .page-tab.active{background:var(--green-dim);color:var(--green);border:1px solid rgba(29,185,84,.25);}
+    .page-tab:hover:not(.active){color:var(--text2);background:var(--bg);}
+
+    .reg-header{margin-bottom:26px;}
+    .reg-header h1{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;}
+    .reg-header p{font-size:.82rem;color:var(--text3);}
+
+    /* Progress bar */
+    .progress-wrap{margin-bottom:28px;}
+    .progress-steps{display:flex;gap:6px;margin-bottom:8px;}
+    .prog-step{flex:1;height:4px;border-radius:999px;background:var(--surface);border:1px solid var(--border);transition:all .4s;}
+    .prog-step.done{background:var(--green);border-color:var(--green);}
+    .prog-step.active{background:rgba(29,185,84,.4);border-color:rgba(29,185,84,.4);}
+    .prog-label{font-size:.72rem;color:var(--text3);}
+    .prog-label span{color:var(--green);font-weight:600;}
+
+    /* Role tabs */
+    .role-tabs{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:3px;margin-bottom:22px;gap:3px;}
+    .role-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:9px;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--text3);transition:all .2s;border:none;background:none;font-family:'DM Sans',sans-serif;}
+    .role-tab.active{background:var(--green-dim);color:var(--green);border:1px solid rgba(29,185,84,.22);}
+    .role-tab:hover:not(.active){color:var(--text2);}
+    .role-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin-bottom:22px;display:flex;align-items:center;gap:13px;}
+    .role-card-icon{font-size:1.5rem;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--green-dim);border-radius:12px;border:1px solid rgba(29,185,84,.25);flex-shrink:0;}
+    .role-card-info{}
+    .role-card-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--text);}
+    .role-card-desc{font-size:.72rem;color:var(--text3);margin-top:2px;}
+
+    /* Form steps */
+    .form-step{display:none;}
+    .form-step.active{display:block;animation:fadeSlideUp .35s ease both;}
+
+    .step-heading{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+
+    .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .form-group{margin-bottom:14px;}
+    .form-label{display:block;font-size:.76rem;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:.3px;}
+    .input-wrap{position:relative;display:flex;align-items:center;}
+    .input-icon{position:absolute;left:13px;font-size:.88rem;pointer-events:none;z-index:1;}
+    .form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 13px 11px 38px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+    .form-input::placeholder{color:var(--text3);}
+    .form-input:focus{border-color:rgba(29,185,84,.5);box-shadow:0 0 0 3px rgba(29,185,84,.08);}
+    .form-input.valid{border-color:rgba(29,185,84,.5);}
+    .form-input.invalid{border-color:rgba(255,77,77,.5);}
+    .form-input.no-icon{padding-left:14px;}
+    .pwd-toggle{position:absolute;right:13px;background:none;border:none;cursor:pointer;font-size:.88rem;color:var(--text3);padding:4px;transition:color .2s;}
+    .pwd-toggle:hover{color:var(--text2);}
+    .field-hint{font-size:.68rem;margin-top:4px;display:block;}
+    .field-hint.neutral{color:var(--text3);}
+    .field-hint.ok{color:var(--green);}
+    .field-hint.err{color:var(--red);}
+
+    /* Password strength */
+    .pwd-strength{margin-top:8px;}
+    .pwd-bars{display:flex;gap:4px;margin-bottom:5px;}
+    .pwd-bar{flex:1;height:3px;border-radius:999px;background:var(--bg2);transition:all .3s;}
+    .pwd-bar.weak{background:var(--red);}
+    .pwd-bar.fair{background:var(--amber);}
+    .pwd-bar.strong{background:var(--green);}
+    .pwd-label{font-size:.67rem;color:var(--text3);}
+
+    /* Select */
+    .form-select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 13px 11px 38px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a7a5a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+    .form-select:focus{border-color:rgba(29,185,84,.5);box-shadow:0 0 0 3px rgba(29,185,84,.08);}
+    .form-select option{background:var(--surface2);}
+
+    /* Dietary checkboxes */
+    .checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .check-pill{display:flex;align-items:center;gap:9px;padding:10px 13px;border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .2s;background:var(--surface);}
+    .check-pill:hover{border-color:rgba(29,185,84,.35);}
+    .check-pill input[type="checkbox"]{width:14px;height:14px;accent-color:var(--green);cursor:pointer;flex-shrink:0;}
+    .check-pill-label{font-size:.78rem;color:var(--text2);}
+    .check-pill:has(input:checked){background:var(--green-dim);border-color:rgba(29,185,84,.35);}
+
+    /* T&C */
+    .tc-wrap{display:flex;align-items:flex-start;gap:9px;padding:13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;cursor:pointer;}
+    .tc-wrap input[type="checkbox"]{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0;margin-top:1px;}
+    .tc-text{font-size:.78rem;color:var(--text3);line-height:1.5;}
+    .tc-text a{color:var(--green);text-decoration:none;}
+
+    /* Buttons */
+    .btn-row{display:flex;gap:10px;margin-top:6px;}
+    .btn-back{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:12px 18px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .2s;}
+    .btn-back:hover{background:var(--surface2);color:var(--text);}
+    .btn-next{flex:1;background:var(--green);color:#000;border:none;border-radius:12px;padding:13px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-next:hover{background:var(--green-light);transform:translateY(-1px);box-shadow:0 6px 20px rgba(29,185,84,.25);}
+    .btn-next:active{transform:translateY(0);}
+    .btn-next.loading{opacity:.7;cursor:not-allowed;}
+    .btn-next .spinner{width:15px;height:15px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+    .btn-next.loading .spinner{display:block;}
+    .btn-next.loading .btn-text{display:none;}
+
+    .alert{padding:10px 13px;border-radius:11px;font-size:.78rem;margin-bottom:14px;display:none;align-items:center;gap:8px;animation:fadeSlideUp .3s ease both;}
+    .alert.show{display:flex;}
+    .alert.error{background:rgba(255,77,77,.1);border:1px solid rgba(255,77,77,.3);color:#ff7f7f;}
+    .alert.success{background:var(--green-dim);border:1px solid rgba(29,185,84,.3);color:var(--green);}
+
+    /* Success screen */
+    .success-screen{display:none;text-align:center;padding:20px 0;animation:fadeSlideUp .5s ease both;}
+    .success-screen.show{display:block;}
+    .success-icon{width:72px;height:72px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 20px;animation:checkPop .4s ease both;box-shadow:0 0 0 12px rgba(29,185,84,.12),0 0 40px rgba(29,185,84,.25);}
+    .success-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px;}
+    .success-sub{font-size:.85rem;color:var(--text2);line-height:1.6;max-width:340px;margin:0 auto 28px;}
+    .success-actions{display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto;}
+    .btn-go{background:var(--green);color:#000;border:none;border-radius:12px;padding:13px 24px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;text-decoration:none;display:block;text-align:center;}
+    .btn-go:hover{background:var(--green-light);transform:translateY(-1px);}
+    .btn-go-sec{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:12px;padding:12px 24px;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:block;text-align:center;}
+    .btn-go-sec:hover{background:var(--surface2);color:var(--text);}
+
+    .divider{display:flex;align-items:center;gap:12px;margin:16px 0;}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+    .divider span{font-size:.7rem;color:var(--text3);}
+
+    .bottom-link{text-align:center;font-size:.78rem;color:var(--text3);margin-top:4px;}
+    .bottom-link a{color:var(--green);text-decoration:none;font-weight:600;}
+    .bottom-link a:hover{text-decoration:underline;}
+
+    .mobile-logo{display:none;}
+    @media(max-width:860px){
+      .page{grid-template-columns:1fr;}
+      .left-panel{display:none;}
+      .right-panel{padding:32px 20px;padding-top:60px;}
+      .mobile-logo{display:block !important;font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--green);margin-bottom:20px;}
+      .mobile-logo span{color:var(--text);}
+      .form-grid-2{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<div class="page">
+
+  <!-- ══ LEFT PANEL ══ -->
+  <div class="left-panel">
+    <div>
+      <a href="index.html" class="brand-logo">Plate<span>Zero</span></a>
+      <div class="brand-tagline">Campus Food Waste Reduction Platform</div>
+    </div>
+    <div class="left-content">
+      <h2 class="left-headline">Join the<br><span class="accent">green</span><br>movement.</h2>
+      <p class="left-sub">Create your account in 3 quick steps and start earning EcoPoints from your very first clean plate.</p>
+      <div class="steps-list" id="sideSteps">
+        <div class="step-item active" id="ss1">
+          <div class="step-num" id="sn1">1</div>
+          <div class="step-info"><div class="step-title">Choose Your Role</div><div class="step-desc">Student or Admin — pick how you'll be using PlateZero.</div></div>
+        </div>
+        <div class="step-item" id="ss2">
+          <div class="step-num" id="sn2">2</div>
+          <div class="step-info"><div class="step-title">Personal Details</div><div class="step-desc">Your name, email, and account credentials.</div></div>
+        </div>
+        <div class="step-item" id="ss3">
+          <div class="step-num" id="sn3">3</div>
+          <div class="step-info"><div class="step-title">Profile Setup</div><div class="step-desc">Hostel, dietary preferences, and a few quick settings.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="left-footer">
+      Already have an account? <a href="admin_login.html">Sign in →</a> &nbsp;·&nbsp; <a href="pl.html">Home</a>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <div class="right-panel">
+    <div class="reg-box">
+      <div class="mobile-logo">Plate<span>Zero</span></div>
+
+      <!-- Page tabs -->
+      <div class="page-tabs">
+        <a class="page-tab" href="admin_login.html">🔑 Sign In</a>
+        <button class="page-tab active">✨ Register</button>
+      </div>
+
+      <div class="reg-header">
+        <h1 id="regTitle">Create your account ✨</h1>
+        <p id="regSub">Step 1 of 3 — Choose your role to get started</p>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-steps">
+          <div class="prog-step active" id="ps1"></div>
+          <div class="prog-step" id="ps2"></div>
+          <div class="prog-step" id="ps3"></div>
+        </div>
+        <div class="prog-label" id="progLabel">Step <span>1</span> of 3</div>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert error" id="alertBox"><span>⚠️</span><span id="alertMsg"></span></div>
+
+      <!-- ═══ STEP 1: Role ═══ -->
+      <div class="form-step active" id="step1">
+        <div class="step-heading">👤 Admin / Mess Staff Setup</div>
+        <div class="role-card" id="roleCard">
+          <div class="role-card-icon" id="roleCardIcon">🏢</div>
+          <div class="role-card-info">
+            <div class="role-card-title" id="roleCardTitle">Admin / Mess Staff Account</div>
+            <div class="role-card-desc" id="roleCardDesc">Manage student attendance, monitor waste analytics, generate QR codes and configure mess schedules.</div>
+          </div>
+        </div>
+
+        <div class="step-heading" style="margin-top:4px">🏫 Your Institution</div>
+        <div class="form-group">
+          <label class="form-label">University / College name</label>
+          <div class="input-wrap">
+            <span class="input-icon">🏛️</span>
+            <input class="form-input" type="text" id="uniInput" placeholder="e.g. Delhi Technological University"/>
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <div class="input-wrap">
+              <span class="input-icon">📍</span>
+              <input class="form-input" type="text" id="cityInput" placeholder="e.g. New Delhi"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <div class="input-wrap">
+              <span class="input-icon">🗺️</span>
+              <select class="form-select" id="stateInput">
+                <option value="" disabled selected>Select state</option>
+                <option>Delhi</option><option>Maharashtra</option><option>Karnataka</option>
+                <option>Tamil Nadu</option><option>Uttar Pradesh</option><option>Rajasthan</option>
+                <option>Gujarat</option><option>West Bengal</option><option>Telangana</option>
+                <option>Madhya Pradesh</option><option>Bihar</option><option>Punjab</option>
+                <option>Haryana</option><option>Odisha</option><option>Kerala</option>
+                <option>Assam</option><option>Jharkhand</option><option>Uttarakhand</option>
+                <option>Himachal Pradesh</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-next" onclick="goStep(2)"><span class="btn-text">Continue →</span></button>
+        </div>
+        <div class="divider"></div>
+        <div class="bottom-link">Already have an account? <a href="admin_login.html">Sign in →</a></div>
+      </div>
+
+      <!-- ═══ STEP 2: Personal Details ═══ -->
+      <div class="form-step" id="step2">
+        <div class="step-heading">🙋 Personal Details</div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">First name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input class="form-input" type="text" id="firstNameInput" placeholder="Naina" oninput="validateName()"/>
+            </div>
+            <span class="field-hint neutral" id="fnHint">Your real name as it appears on your ID card.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input class="form-input" type="text" id="lastNameInput" placeholder="Jain" oninput="validateName()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input class="form-input" type="email" id="regEmailInput" placeholder="you@university.edu" oninput="validateEmail()"/>
+          </div>
+          <span class="field-hint neutral" id="emailHint">Use your university email for faster verification.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone number</label>
+          <div class="input-wrap">
+            <span class="input-icon">📱</span>
+            <input class="form-input" type="tel" id="phoneInput" placeholder="+91 99999 00000" oninput="validatePhone()"/>
+          </div>
+          <span class="field-hint neutral" id="phoneHint">Used only for account recovery.</span>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input class="form-input" type="password" id="regPwdInput" placeholder="Create a password" oninput="updateStrength()"/>
+              <button class="pwd-toggle" onclick="togglePwd('regPwdInput','pt1')" id="pt1">👁️</button>
+            </div>
+            <div class="pwd-strength">
+              <div class="pwd-bars"><div class="pwd-bar" id="pb1"></div><div class="pwd-bar" id="pb2"></div><div class="pwd-bar" id="pb3"></div><div class="pwd-bar" id="pb4"></div></div>
+              <div class="pwd-label" id="strengthLabel">Enter a password</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input class="form-input" type="password" id="regPwdConfirm" placeholder="Re-enter password" oninput="checkPwdMatch()"/>
+              <button class="pwd-toggle" onclick="togglePwd('regPwdConfirm','pt2')" id="pt2">👁️</button>
+            </div>
+            <span class="field-hint neutral" id="pwdMatchHint">Passwords must match.</span>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goStep(1)">← Back</button>
+          <button class="btn-next" onclick="goStep(3)"><span class="btn-text">Continue →</span></button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 3: Profile Setup ═══ -->
+      <div class="form-step" id="step3">
+        <div class="step-heading" id="step3Heading">🏢 Admin Setup</div>
+
+        <div id="adminFields">
+        </div>
+          <div class="form-group">
+            <label class="form-label">Mess / Cafeteria name</label>
+            <div class="input-wrap">
+              <span class="input-icon">🍽️</span>
+              <input class="form-input" type="text" id="messNameInput" placeholder="e.g. Central Mess — Block A&B"/>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Designation</label>
+              <div class="input-wrap">
+                <span class="input-icon">💼</span>
+                <select class="form-select" id="designationInput">
+                  <option value="" disabled selected>Select role</option>
+                  <option>Mess Manager</option><option>Warden</option>
+                  <option>Head Cook</option><option>Hostel Administrator</option>
+                  <option>Student Welfare Officer</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Employee / Staff ID</label>
+              <div class="input-wrap">
+                <span class="input-icon">🪪</span>
+                <input class="form-input" type="text" id="empIdInput" placeholder="e.g. STAFF-042"/>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Number of students you manage</label>
+            <div class="input-wrap">
+              <span class="input-icon">👥</span>
+              <select class="form-select" id="studentCountInput">
+                <option value="" disabled selected>Approximate count</option>
+                <option>Less than 100</option><option>100 – 250</option>
+                <option>250 – 500</option><option>500 – 1000</option><option>1000+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <label class="tc-wrap">
+          <input type="checkbox" id="tcCheck" onchange="checkTC()"/>
+          <span class="tc-text">I agree to PlateZero's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I understand that my meal data will be used to calculate waste reduction metrics.</span>
+        </label>
+
+        <div class="form-group">
+          <label class="check-pill" style="max-width:100%"><input type="checkbox" id="newsCheck"> <span class="check-pill-label">📧 Send me weekly sustainability tips and campus updates</span></label>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goStep(2)">← Back</button>
+          <button class="btn-next" id="submitBtn" onclick="handleRegister()">
+            <div class="spinner"></div>
+            <span class="btn-text">Create Account 🎉</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ SUCCESS ═══ -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">🎉</div>
+        <div class="success-title" id="successName">Welcome, Naina!</div>
+        <p class="success-sub">Your PlateZero account has been created. You've been awarded <strong style="color:var(--green)">50 welcome EcoPoints</strong> — snap your first clean plate to earn more!</p>
+        <div class="success-actions">
+          <a class="btn-go" href="admin.html" id="successDashBtn">Go to Admin Dashboard →</a>
+          <a class="btn-go-sec" href="admin_login.html">Sign in to your account</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  let regRole = 'admin';
+  let currentStep = 1;
+  let dietaryPrefs = [];
+
+  // ── Role switch ──
+  function setRegRole(role) {
+    regRole = 'admin';
+  }
+
+  // ── Step navigation ──
+  function goStep(n) {
+    if(n > currentStep && !validateStep(currentStep)) return;
+    currentStep = n;
+    document.querySelectorAll('.form-step').forEach((s,i)=>s.classList.toggle('active',i===n-1));
+
+    // Progress bars
+    ['ps1','ps2','ps3'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.classList.remove('done','active');
+      if(i+1<n) el.classList.add('done');
+      else if(i+1===n) el.classList.add('active');
+    });
+
+    // Sidebar steps
+    ['ss1','ss2','ss3'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.classList.remove('active','done');
+      if(i+1<n) el.classList.add('done');
+      else if(i+1===n) el.classList.add('active');
+    });
+    // Checkmarks on done sidebar nums
+    ['sn1','sn2','sn3'].forEach((id,i)=>{
+      document.getElementById(id).textContent = i+1<n ? '✓' : i+1;
+    });
+
+    // Step 3 heading changes by role
+    if(n===3){
+      document.getElementById('step3Heading').textContent = '🏢 Admin Setup';
+    }
+
+    const titles=['Choose Your Role ✨','Personal Details 🙋','Profile Setup 🏠'];
+    const subs=['Step 1 of 3 — Choose your role to get started','Step 2 of 3 — Your personal & login details','Step 3 of 3 — Complete your profile'];
+    document.getElementById('regTitle').textContent=titles[n-1];
+    document.getElementById('regSub').textContent=subs[n-1];
+    document.getElementById('progLabel').innerHTML=`Step <span>${n}</span> of 3`;
+
+    hideAlert();
+    document.querySelector('.right-panel').scrollTop=0;
+  }
+
+  // ── Validation ──
+  function validateStep(n) {
+    if(n===1){
+      if(!document.getElementById('uniInput').value.trim()){showAlert('Please enter your university name.');return false;}
+      if(!document.getElementById('cityInput').value.trim()){showAlert('Please enter your city.');return false;}
+      if(!document.getElementById('stateInput').value){showAlert('Please select your state.');return false;}
+    }
+    if(n===2){
+      const fn=document.getElementById('firstNameInput').value.trim();
+      const ln=document.getElementById('lastNameInput').value.trim();
+      const em=document.getElementById('regEmailInput').value.trim();
+      const ph=document.getElementById('phoneInput').value.trim();
+      const pw=document.getElementById('regPwdInput').value;
+      const pc=document.getElementById('regPwdConfirm').value;
+      if(!fn||!ln){showAlert('Please enter your full name.');return false;}
+      if(!em||!/\S+@\S+\.\S+/.test(em)){showAlert('Please enter a valid email address.');return false;}
+      if(!ph){showAlert('Please enter your phone number.');return false;}
+      if(pw.length<8){showAlert('Password must be at least 8 characters.');return false;}
+      if(pw!==pc){showAlert('Passwords do not match.');return false;}
+    }
+    return true;
+  }
+
+  function validateName(){
+    const fn=document.getElementById('firstNameInput').value.trim();
+    const ln=document.getElementById('lastNameInput').value.trim();
+    if(fn&&ln) setFieldState('firstNameInput','fnHint','ok','✓ Looks good!');
+  }
+
+  function validateEmail(){
+    const v=document.getElementById('regEmailInput').value.trim();
+    const h=document.getElementById('emailHint');
+    if(!v){h.className='field-hint neutral';h.textContent='Use your university email for faster verification.';setFieldState('regEmailInput',null,'');return;}
+    if(/\S+@\S+\.\S+/.test(v)){h.className='field-hint ok';h.textContent='✓ Valid email address';document.getElementById('regEmailInput').className='form-input valid';}
+    else{h.className='field-hint err';h.textContent='✗ Enter a valid email address';document.getElementById('regEmailInput').className='form-input invalid';}
+  }
+
+  function validatePhone(){
+    const v=document.getElementById('phoneInput').value.replace(/\D/g,'');
+    const h=document.getElementById('phoneHint');
+    if(v.length>=10){h.className='field-hint ok';h.textContent='✓ Valid phone number';document.getElementById('phoneInput').className='form-input valid';}
+    else if(v.length>0){h.className='field-hint err';h.textContent='✗ Enter at least 10 digits';document.getElementById('phoneInput').className='form-input invalid';}
+    else{h.className='field-hint neutral';h.textContent='Used only for account recovery.';}
+  }
+
+  function setFieldState(inputId, hintId, cls, msg){
+    if(inputId) document.getElementById(inputId).className='form-input'+(cls?' '+cls:'');
+    if(hintId && msg){const h=document.getElementById(hintId);h.className=`field-hint ${cls}`;h.textContent=msg;}
+  }
+
+  function updateStrength(){
+    const p=document.getElementById('regPwdInput').value;
+    const bars=[document.getElementById('pb1'),document.getElementById('pb2'),document.getElementById('pb3'),document.getElementById('pb4')];
+    const lbl=document.getElementById('strengthLabel');
+    bars.forEach(b=>b.className='pwd-bar');
+    if(!p){lbl.textContent='Enter a password';return;}
+    let score=0;
+    if(p.length>=8) score++;
+    if(/[A-Z]/.test(p)) score++;
+    if(/[0-9]/.test(p)) score++;
+    if(/[^A-Za-z0-9]/.test(p)) score++;
+    const cls=score<=1?'weak':score<=2?'fair':'strong';
+    const labels=['','Weak','Fair','Good','Strong'];
+    for(let i=0;i<score;i++) bars[i].classList.add(cls);
+    lbl.textContent=labels[score]||'Enter a password';
+    lbl.style.color=cls==='weak'?'var(--red)':cls==='fair'?'var(--amber)':'var(--green)';
+  }
+
+  function checkPwdMatch(){
+    const p=document.getElementById('regPwdInput').value;
+    const c=document.getElementById('regPwdConfirm').value;
+    const h=document.getElementById('pwdMatchHint');
+    if(!c){h.className='field-hint neutral';h.textContent='Passwords must match.';return;}
+    if(p===c){h.className='field-hint ok';h.textContent='✓ Passwords match';document.getElementById('regPwdConfirm').className='form-input valid';}
+    else{h.className='field-hint err';h.textContent='✗ Passwords do not match';document.getElementById('regPwdConfirm').className='form-input invalid';}
+  }
+
+  function togglePwd(inputId, btnId){
+    const i=document.getElementById(inputId),b=document.getElementById(btnId);
+    i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'👁️':'🙈';
+  }
+
+  function checkTC(){
+    // live TC check — just for UX
+  }
+
+  function updateDiet(cb){
+    if(cb.checked) dietaryPrefs.push(cb.value);
+    else dietaryPrefs=dietaryPrefs.filter(d=>d!==cb.value);
+  }
+
+  function showAlert(msg,type='error'){
+    const b=document.getElementById('alertBox');
+    document.getElementById('alertMsg').textContent=msg;
+    b.className=`alert ${type} show`;
+    b.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  function hideAlert(){document.getElementById('alertBox').classList.remove('show');}
+
+  // ── Register ──
+  async function handleRegister(){
+    if(!document.getElementById('tcCheck').checked){showAlert('Please accept the Terms of Service to continue.');return;}
+
+    const btn=document.getElementById('submitBtn');
+    btn.classList.add('loading'); btn.disabled=true;
+
+    // Combine firstName and lastName for the backend 'name' field
+    const firstName = document.getElementById('firstNameInput').value.trim();
+    const lastName = document.getElementById('lastNameInput').value.trim();
+
+    const payload={
+      name: firstName + ' ' + lastName,
+      role: regRole,
+      email: document.getElementById('regEmailInput').value.trim(),
+      password: document.getElementById('regPwdInput').value,
+      hostel: document.getElementById('messNameInput').value
+    };
+
+    try{
+      const res=await fetch('http://127.0.0.1:8000/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const data=await res.json();
+      if(data.status==='success') completeRegistration(payload, data.id||'new-user', firstName);
+      else showAlert(data.message||'Registration failed. Please try again.');
+    } catch {
+      // Demo mode — simulate success if backend is down
+      await new Promise(r=>setTimeout(r,1200));
+      completeRegistration(payload, 'demo-'+Date.now(), firstName);
+    } finally {
+      btn.classList.remove('loading'); btn.disabled=false;
+    }
+  }
+
+  function completeRegistration(payload, userId, firstName){
+    // Store session
+    localStorage.setItem(payload.role === 'admin' ? 'admin_id' : 'student_id', userId);
+    localStorage.setItem(payload.role === 'admin' ? 'admin_name' : 'student_name', payload.name);
+    localStorage.setItem(payload.role === 'admin' ? 'admin_role' : 'student_role', payload.role);
+
+    // Show success screen
+    document.querySelectorAll('.form-step').forEach(s=>s.classList.remove('active'));
+    document.getElementById('progressWrap') && (document.getElementById('progressWrap').style.display='none');
+
+    document.getElementById('successName').textContent='Welcome, '+firstName+'! 🎉';
+    document.getElementById('successDashBtn').href='admin.html';
+
+    document.querySelector('.progress-wrap').style.display='none';
+    document.querySelector('.reg-header').style.display='none';
+    document.querySelector('.page-tabs').style.display='none';
+    document.getElementById('alertBox').style.display='none';
+    document.getElementById('successScreen').classList.add('show');
+
+    // Update left panel
+    document.querySelectorAll('.step-item').forEach(s=>{s.classList.remove('active');s.classList.add('done');});
+    ['sn1','sn2','sn3'].forEach(id=>document.getElementById(id).textContent='✓');
+  }
+</script>
+</body>
+</html>

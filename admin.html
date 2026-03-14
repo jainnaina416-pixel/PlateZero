@@ -1,255 +1,1806 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlateZero – Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --green: #1db954;
+      --green-light: #23e066;
+      --green-dim: rgba(29,185,84,0.15);
+      --bg: #0a0f0a;
+      --bg2: #111811;
+      --bg3: #172217;
+      --surface: #1a221a;
+      --surface2: #1f2b1f;
+      --border: rgba(29,185,84,0.18);
+      --text: #e8f5e9;
+      --text2: #8fbc8f;
+      --text3: #5a7a5a;
+      --gold: #f5c518;
+      --amber: #ff9500;
+      --red: #ff4d4d;
+      --blue: #4d9fff;
+      --purple: #a855f7;
+      --radius: 18px;
+      --sidebar: 220px;
+    }
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <title>PlateZero Admin Dashboard</title>
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
 
-    <link rel="stylesheet" href="style2.css">
+    /* Noise */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
 
-    <!-- QR generator library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+      animation: blobFloat 8s ease-in-out infinite alternate;
+    }
+    .blob1 { width: 400px; height: 400px; background: rgba(29,185,84,0.06); top: -100px; right: 100px; }
+    .blob2 { width: 300px; height: 300px; background: rgba(29,185,84,0.04); bottom: 0; left: 200px; animation-delay: -4s; }
 
+    @keyframes blobFloat {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(30px) scale(1.05); }
+    }
 
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: var(--sidebar);
+      background: rgba(10,15,10,0.95);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      padding: 24px 0;
+    }
+
+    .sidebar-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--green);
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: -0.5px;
+    }
+    .sidebar-logo span { color: var(--text); }
+    .sidebar-logo small {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--text3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .nav-section {
+      padding: 20px 12px 8px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--text3);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      margin: 2px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--text3);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .nav-link:hover { background: var(--surface); color: var(--text2); }
+    .nav-link.active {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid rgba(29,185,84,0.2);
+    }
+    .nav-link .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .admin-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .admin-pill:hover { background: var(--surface2); }
+    .admin-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber), #c05c00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: #fff;
+    }
+    .admin-info { flex: 1; min-width: 0; }
+    .admin-info .name { font-size: 0.8rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-info .role { font-size: 0.65rem; color: var(--text3); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar);
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(10,15,10,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-left h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .topbar-left p { font-size: 0.75rem; color: var(--text3); margin-top: 1px; }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .icon-btn {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .icon-btn:hover { background: var(--surface2); }
+    .notif-dot {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 1.5px solid var(--bg);
+    }
+
+    .generate-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--green);
+      color: #000;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .generate-btn:hover { background: var(--green-light); transform: scale(1.02); }
+    .logout-btn {
+      border: 1px solid var(--red);
+      background: transparent;
+      color: var(--red);
+    }
+    .logout-btn:hover {
+      background: rgba(255, 77, 77, 0.1);
+    }
+
+    /* Content area */
+    .content {
+      padding: 24px 28px 40px;
+    }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+      animation: fadeSlideUp 0.5s ease both;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); border-color: rgba(29,185,84,0.35); }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .kpi-card.green::before { background: var(--green); }
+    .kpi-card.amber::before { background: var(--amber); }
+    .kpi-card.blue::before { background: var(--blue); }
+    .kpi-card.red::before { background: var(--red); }
+
+    .kpi-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .kpi-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .kpi-icon.green { background: var(--green-dim); }
+    .kpi-icon.amber { background: rgba(255,149,0,0.12); }
+    .kpi-icon.blue { background: rgba(77,159,255,0.12); }
+    .kpi-icon.red { background: rgba(255,77,77,0.12); }
+
+    .kpi-trend {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .kpi-trend.up { background: var(--green-dim); color: var(--green); }
+    .kpi-trend.down { background: rgba(255,77,77,0.1); color: var(--red); }
+
+    .kpi-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .kpi-lbl {
+      font-size: 0.75rem;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+
+    /* ── GRID LAYOUT ── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .dash-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* ── CARD BASE ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      animation: fadeSlideUp 0.5s ease both;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .card-action {
+      font-size: 0.72rem;
+      color: var(--green);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity 0.2s;
+    }
+    .card-action:hover { opacity: 0.7; }
+
+    /* ── CHART BAR ── */
+    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .bar-wrap {
+      flex: 1;
+      width: 100%;
+      background: var(--bg);
+      border-radius: 6px 6px 0 0;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .bar-fill {
+      width: 100%;
+      border-radius: 5px 5px 0 0;
+      transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 0%;
+      position: relative;
+    }
+    .bar-fill.green { background: linear-gradient(180deg, var(--green-light), var(--green)); }
+    .bar-fill.amber { background: linear-gradient(180deg, #ffb340, var(--amber)); }
+    .bar-fill.red { background: linear-gradient(180deg, #ff6b6b, var(--red)); }
+    .bar-lbl { font-size: 0.65rem; color: var(--text3); }
+    .bar-val { font-size: 0.68rem; color: var(--text2); font-weight: 600; }
+
+    /* ── MEAL SELECTOR ── */
+    .meal-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .meal-tab {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--text3);
+      background: var(--bg);
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .meal-tab.active {
+      background: var(--green-dim);
+      color: var(--green);
+      border-color: rgba(29,185,84,0.35);
+    }
+    .meal-tab:hover:not(.active) { color: var(--text2); }
+
+    /* ── PROGRESS BARS ── */
+    .prog-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .prog-label { font-size: 0.78rem; color: var(--text2); width: 90px; flex-shrink: 0; }
+    .prog-bar {
+      flex: 1;
+      height: 7px;
+      background: var(--bg);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 1.3s cubic-bezier(0.4,0,0.2,1);
+      width: 0%;
+    }
+    .prog-pct { font-size: 0.72rem; font-weight: 600; width: 36px; text-align: right; font-family: 'Syne', sans-serif; }
+
+    /* ── ATTENDANCE TABLE ── */
+    .att-table { width: 100%; border-collapse: collapse; }
+    .att-table th {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text3);
+      font-weight: 600;
+      text-align: left;
+      padding: 0 0 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .att-table td {
+      padding: 10px 0;
+      font-size: 0.82rem;
+      color: var(--text2);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .att-table tr:last-child td { border-bottom: none; }
+    .att-table tr:hover td { color: var(--text); }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .status-pill.present { background: var(--green-dim); color: var(--green); }
+    .status-pill.absent { background: rgba(255,77,77,0.1); color: var(--red); }
+    .status-pill.partial { background: rgba(255,149,0,0.1); color: var(--amber); }
+
+    /* ── QR GENERATE CARD ── */
+    .qr-gen-card {
+      text-align: center;
+      padding: 24px 20px;
+    }
+    .qr-placeholder {
+      width: 220px; height: 220px;
+      margin: 0 auto 16px;
+      background: var(--bg);
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .qr-placeholder.active {
+      border-color: var(--green);
+      background: var(--green-dim);
+      box-shadow: 0 0 30px rgba(29,185,84,0.2);
+      border: none;
+    }
+    .qr-placeholder canvas {
+      display: block !important;
+      margin: auto;
+    }
+    .qr-placeholder img {
+      margin: auto;
+      display: block;
+    }
+    .qr-desc { font-size: 0.78rem; color: var(--text3); margin-bottom: 14px; line-height: 1.5; }
+    .gen-btn {
+      width: 100%;
+      background: var(--green);
+      color: #000;
+      border: none;
+      padding: 11px;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+    .gen-btn:hover { background: var(--green-light); }
+    .gen-btn.secondary {
+      background: var(--surface2);
+      color: var(--text2);
+      border: 1px solid var(--border);
+    }
+    .gen-btn.secondary:hover { background: var(--bg); color: var(--text); }
+    .meal-id-display {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      color: var(--text3);
+      margin-top: 8px;
+      word-break: break-all;
+    }
+
+    /* ── ALERTS ── */
+    .alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .alert-item:hover { opacity: 0.8; }
+    .alert-item.warning { background: rgba(255,149,0,0.07); border-color: rgba(255,149,0,0.25); }
+    .alert-item.danger { background: rgba(255,77,77,0.07); border-color: rgba(255,77,77,0.25); }
+    .alert-item.info { background: rgba(77,159,255,0.07); border-color: rgba(77,159,255,0.25); }
+    .alert-icon { font-size: 1.1rem; margin-top: 1px; }
+    .alert-title { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .alert-desc { font-size: 0.73rem; color: var(--text3); line-height: 1.4; }
+    .alert-time { font-size: 0.65rem; color: var(--text3); margin-left: auto; flex-shrink: 0; }
+
+    /* ── TOP STUDENTS ── */
+    .top-student-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .top-student-row:last-child { border-bottom: none; }
+    .ts-rank {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      width: 22px;
+      color: var(--text3);
+    }
+    .ts-rank.gold { color: var(--gold); }
+    .ts-rank.silver { color: #c0c0c0; }
+    .ts-rank.bronze { color: #cd7f32; }
+    .ts-av {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.72rem;
+      flex-shrink: 0;
+    }
+    .ts-name { flex: 1; font-size: 0.83rem; font-weight: 500; }
+    .ts-pts {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* ── WASTE DONUT ── */
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .donut-svg { flex-shrink: 0; }
+    .donut-legends { flex: 1; }
+    .donut-leg {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .donut-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .donut-leg-name { font-size: 0.78rem; color: var(--text2); flex: 1; }
+    .donut-leg-val { font-size: 0.78rem; font-weight: 600; font-family: 'Syne', sans-serif; }
+
+    /* ── EXPORT BTN ── */
+    .export-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .export-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text2);
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+    .export-btn:hover { background: var(--surface); color: var(--text); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 0.82rem;
+      color: var(--text);
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 5px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Responsive: collapse sidebar on small screens */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .dash-grid { grid-template-columns: 1fr; }
+      .dash-grid-3 { grid-template-columns: 1fr; }
+    }
+    
+    .file-upload-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      margin-bottom: 10px;
+    }
+    .file-upload-btn:hover { background: var(--surface); border-color: var(--green); }
+    input[type="file"] { display: none; }
+    .snap-btn {
+      background: var(--green);
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .snap-btn:hover { background: var(--green-light); }
+
+    /* ── WASTE AI PANEL ─────────────────────────────────────── */
+    .wasteai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .wasteai-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .metric-big {
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+      color: var(--green); margin: 12px 0 4px;
+    }
+    .metric-sub { font-size: 0.72rem; color: var(--text3); }
+    .dual-chart { display: flex; align-items: flex-end; gap: 4px; height: 110px; }
+    .dual-col { display: flex; gap: 2px; align-items: flex-end; }
+    .dual-bar {
+      width: 14px; border-radius: 4px 4px 0 0;
+      transition: height 1.2s cubic-bezier(.4,0,.2,1);
+      height: 0%;
+    }
+    .dual-bar.attend { background: linear-gradient(180deg, #23e066, #1db954); }
+    .dual-bar.waste  { background: linear-gradient(180deg, #ffb340, #ff9500); }
+    .dual-lbl { font-size: 0.6rem; color: var(--text3); text-align: center; margin-top: 4px; }
+    .rec-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border-left: 3px solid;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .rec-item.danger  { background: rgba(255,77,77,.07);  border-color: var(--red);    color: var(--text); }
+    .rec-item.warning { background: rgba(255,149,0,.07); border-color: var(--amber);  color: var(--text); }
+    .rec-item.success { background: var(--green-dim);    border-color: var(--green);  color: var(--text); }
+    .pred-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px;
+      font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700;
+    }
+    .pred-badge.over  { background: rgba(255,77,77,.12); color: var(--red); }
+    .pred-badge.under { background: var(--green-dim); color: var(--green); }
+    .pred-badge.ok    { background: rgba(77,159,255,.12); color: var(--blue); }
+    .waste-form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .waste-form-row input, .waste-form-row select {
+      flex: 1; min-width: 120px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 9px 12px; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    }
+    .heatmap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .heatmap-cell {
+      padding: 8px 6px; border-radius: 8px; text-align: center;
+      font-size: 0.7rem; font-weight: 600; transition: transform .2s;
+    }
+    .heatmap-cell:hover { transform: scale(1.06); }
+    .chart-legend { display: flex; gap: 14px; margin-bottom: 10px; }
+    .chart-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text3); }
+    .chart-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+  
+  </style>
 </head>
-
 <body>
 
-    <div class="container">
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
 
-        <h1>📊 PlateZero Admin Dashboard</h1>
-        <p class="subtitle">Real-time mess analytics & sanitation insights</p>
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    Plate<span>Zero</span>
+    <small>Admin Panel</small>
+  </div>
 
+  <div class="nav-section">Overview</div>
+  <a class="nav-link active" onclick="setNav(this)">
+    <span class="nav-icon">📊</span> Dashboard
+  </a>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">📍</span> Attendance
+    <span class="nav-badge">3</span>
+  </a>
 
-        <!-- Top Stats -->
+  <div class="nav-section">Mess Management</div>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">🍽️</span> Meal Planner
+  </a>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">📷</span> QR Generator
+  </a>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">🗑️</span> Waste Tracker
+  </a>
 
-        <div class="stats">
+  <div class="nav-section">Students</div>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">👥</span> Students
+  </a>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">🏅</span> Leaderboard
+  </a>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">🎁</span> Rewards
+  </a>
 
-            <div class="stat-card">
-                <h3>Waste Reduced Today</h3>
-                <p class="big">18.4 kg</p>
-            </div>
+  <div class="nav-section">Reports</div>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">📈</span> Analytics
+  </a>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">🤖</span> Waste AI
+  </a>
+  <a class="nav-link" onclick="setNav(this)">
+    <span class="nav-icon">📤</span> Export
+  </a>
 
-            <div class="stat-card">
-                <h3>Estimated Savings</h3>
-                <p class="big">₹4,320</p>
-            </div>
+  <div class="sidebar-bottom">
+    <div class="admin-pill" onclick="showToast('👋 Logged in as Mess Admin')">
+      <div class="admin-avatar">MA</div>
+      <div class="admin-info">
+        <div class="name" id="adminName">Mess Admin</div>
+        <div class="role">Hostel Block A</div>
+      </div>
+      <span style="color:var(--text3);font-size:0.8rem;">⚙️</span>
+    </div>
+  </div>
+</aside>
 
-            <div class="stat-card">
-                <h3>Student Participation</h3>
-                <p class="big">72%</p>
-            </div>
+<!-- ── MAIN ── -->
+<main class="main">
 
-            <div class="stat-card">
-                <h3>EcoPoints Issued</h3>
-                <p class="big">12,450 pts</p>
-            </div>
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>📊 Dashboard Overview</h1>
+      <p id="liveTime"><span class="live-dot"></span> Live · <span id="nowTime"></span></p>
+    </div>
+    <div class="topbar-right">
+      <div class="icon-btn" onclick="showToast('🔔 3 new alerts')">
+        🔔
+        <div class="notif-dot"></div>
+      </div>
+      <div class="icon-btn" onclick="showToast('🔄 Data refreshed')">🔄</div>
+      <button class="generate-btn logout-btn" onclick="logoutAdmin()">
+        Logout
+      </button>
+    </div>
+  </div>
 
+  <!-- Content Area -->
+  <div id="dashboardView" class="content">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-top">
+          <div class="kpi-icon green">🌿</div>
+          <div class="kpi-trend up">↑ 12%</div>
         </div>
-
-
-        <!-- Waste Trends -->
-
-        <h2>📈 Waste Reduction Trends</h2>
-
-        <div class="chart-placeholder">
-            (Chart: Waste decreasing over days/meals)
+        <div class="kpi-val" id="wasteReduced">18.4 kg</div>
+        <div class="kpi-lbl">Waste Reduced Today</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-top">
+          <div class="kpi-icon amber">👥</div>
+          <div class="kpi-trend up">↑ 8%</div>
         </div>
-
-
-        <!-- Meal Analysis -->
-
-        <h2>🍛 Meal Analysis</h2>
-
-        <table>
-
-            <tr>
-                <th>Meal</th>
-                <th>Avg Waste Before</th>
-                <th>Current Waste</th>
-                <th>Reduction</th>
-            </tr>
-
-            <tr>
-                <td>Breakfast</td>
-                <td>12 kg</td>
-                <td>6.5 kg</td>
-                <td>46%</td>
-            </tr>
-
-            <tr>
-                <td>Lunch</td>
-                <td>25 kg</td>
-                <td>15 kg</td>
-                <td>40%</td>
-            </tr>
-
-            <tr>
-                <td>Dinner</td>
-                <td>18 kg</td>
-                <td>10 kg</td>
-                <td>44%</td>
-            </tr>
-
-        </table>
-
-
-        <!-- Sanitation Suggestions -->
-
-        <h2>🧼 Sanitation Suggestions</h2>
-
-        <div class="sanitation-card">
-
-            <h3>Cleanliness Indicators</h3>
-
-            <ul>
-                <li>🍽 Peak mess crowd: Lunch (12:30–1:30 PM)</li>
-                <li>⚠ Highest leftover rate: Tuesday Dinner (15%)</li>
-                <li>🧹 Frequent complaints: Utensil hygiene on Monday lunch</li>
-            </ul>
-
-            <p><b>Suggested Action Steps:</b></p>
-
-            <ul>
-                <li>📌 Increase utensil cleaning staff during peak hours</li>
-                <li>👨‍🍳 Reduce portion of dishes with high leftovers</li>
-                <li>🔔 Conduct hygiene reminder announcements daily</li>
-            </ul>
-
-            <p class="small-note">
-                Data driven from waste patterns & student feedback
-            </p>
-
+        <div class="kpi-val" id="attendCount">0</div>
+        <div class="kpi-lbl">Students Attended Session</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-top">
+          <div class="kpi-icon blue">💰</div>
+          <div class="kpi-trend up">↑ 5%</div>
         </div>
-
-
-        <!-- Smart Insights -->
-
-        <h2>💡 Smart Operational Insights</h2>
-
-        <div class="insight-card">
-
-            <p>Based on waste data:</p>
-
-            <ul>
-                <li>📍 Paneer curry wasted mostly on Mondays → Prep -15%</li>
-                <li>🍛 Opt for fruit cup additions for balanced plates</li>
-                <li>🕐 Suggest lunch timing notifications to students</li>
-            </ul>
-
+        <div class="kpi-val" id="savingsCount">₹4,320</div>
+        <div class="kpi-lbl">Estimated Savings</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-top">
+          <div class="kpi-icon red">⚠️</div>
+          <div class="kpi-trend down">↑ 3</div>
         </div>
-
-
-        <!-- ESG Report -->
-
-        <h2>📄 Sustainability Report</h2>
-
-        <button class="report-btn">Generate ESG / NIRF Report</button>
-
-
-        <!-- QR Attendance System -->
-
-        <h2>📱 PlateZero QR Attendance</h2>
-
-        <select id="meal">
-            <option value="BREAKFAST">BREAKFAST</option>
-            <option value="LUNCH">LUNCH</option>
-            <option value="DINNER">DINNER</option>
-        </select>
-
-        <button type="button" onclick="generateQR()">Generate QR</button>
-
-        <br><br>
-
-        <div id="qrBox"></div>
-
-        <h3 id="session"></h3>
-
-        <h3>Live Attendance: <span id="attendance">0</span></h3>
-
+        <div class="kpi-val" id="wasteCount">18</div>
+        <div class="kpi-lbl">High-Waste Alerts Today</div>
+      </div>
     </div>
 
+    <!-- Row 1: Attendance Chart + QR Generator -->
+    <div class="dash-grid">
 
+      <!-- Weekly attendance chart -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 Meal Analysis</div>
+          <div style="display:flex;gap:8px;">
+            <div class="meal-tab active" onclick="setMealTab(this,'breakfast')">Breakfast</div>
+            <div class="meal-tab" onclick="setMealTab(this,'lunch')">Lunch</div>
+            <div class="meal-tab" onclick="setMealTab(this,'dinner')">Dinner</div>
+          </div>
+        </div>
+        <div class="bar-chart" id="barChart">
+          <!-- Bars injected by JS -->
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;">
+          <span style="font-size:0.7rem;color:var(--text3);">Mon</span>
+          <span style="font-size:0.7rem;color:var(--text3);">Tue</span>
+          <span style="font-size:0.7rem;color:var(--text3);">Wed</span>
+          <span style="font-size:0.7rem;color:var(--text3);">Thu</span>
+          <span style="font-size:0.7rem;color:var(--text3);">Fri</span>
+          <span style="font-size:0.7rem;color:var(--text3);">Sat</span>
+          <span style="font-size:0.7rem;color:var(--text3);color:var(--green);">Today</span>
+        </div>
+      </div>
 
-    <script>
-        // Auth check
-        if (!localStorage.getItem("admin_id") || localStorage.getItem("admin_role") !== "admin") {
-            window.location.href = "login.html";
+      <!-- QR Generator -->
+      <div class="card qr-gen-card">
+        <div class="card-title" style="justify-content:center;margin-bottom:12px;">📷 PlateZero QR Attendance</div>
+        <div class="qr-placeholder" id="qrBox">🔲</div>
+        <div class="qr-desc">Generate a dynamic QR code for each meal session. Students scan this to mark attendance.</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <select id="mealSelect" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.8rem;">
+            <option value="BREAKFAST">🌅 BREAKFAST</option>
+            <option value="LUNCH">☀️ LUNCH</option>
+            <option value="DINNER">🌙 DINNER</option>
+          </select>
+        </div>
+        <button class="gen-btn" onclick="generateQR()">⚡ Generate QR</button>
+        <div class="meal-id-display" id="mealIdDisplay">Session ID: Not Generated</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Waste Breakdown + Alerts + Sanitation Analysis -->
+    <div class="dash-grid-3">
+
+      <!-- Food Waste Breakdown -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🗑️ Waste by Category</div>
+        </div>
+        <div class="donut-wrap" id="donutWrap">
+          <svg class="donut-svg" width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="38" fill="none" stroke="var(--bg)" stroke-width="14"/>
+            <!-- Rice: 35% -->
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#1db954" stroke-width="14"
+              stroke-dasharray="83.5 155.5" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+            <!-- Dal: 25% -->
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#ff9500" stroke-width="14"
+              stroke-dasharray="59.7 155.5" stroke-dashoffset="-83.5" transform="rotate(-90 50 50)"/>
+            <!-- Roti: 22% -->
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#4d9fff" stroke-width="14"
+              stroke-dasharray="52.5 155.5" stroke-dashoffset="-143.2" transform="rotate(-90 50 50)"/>
+            <!-- Other: 18% -->
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#a855f7" stroke-width="14"
+              stroke-dasharray="43 155.5" stroke-dashoffset="-195.7" transform="rotate(-90 50 50)"/>
+            <text x="50" y="46" text-anchor="middle" fill="var(--text)" font-size="10" font-family="Syne" font-weight="800">820</text>
+            <text x="50" y="57" text-anchor="middle" fill="var(--text3)" font-size="6.5" font-family="DM Sans">grams</text>
+          </svg>
+          <div class="donut-legends">
+            <div class="donut-leg">
+              <div class="donut-dot" style="background:var(--green);"></div>
+              <div class="donut-leg-name">Rice</div>
+              <div class="donut-leg-val" style="color:var(--green);">35%</div>
+            </div>
+            <div class="donut-leg">
+              <div class="donut-dot" style="background:var(--amber);"></div>
+              <div class="donut-leg-name">Dal</div>
+              <div class="donut-leg-val" style="color:var(--amber);">25%</div>
+            </div>
+            <div class="donut-leg">
+              <div class="donut-dot" style="background:var(--blue);"></div>
+              <div class="donut-leg-name">Roti</div>
+              <div class="donut-leg-val" style="color:var(--blue);">22%</div>
+            </div>
+            <div class="donut-leg">
+              <div class="donut-dot" style="background:var(--purple);"></div>
+              <div class="donut-leg-name">Other</div>
+              <div class="donut-leg-val" style="color:var(--purple);">18%</div>
+            </div>
+          </div>
+        </div>
+        <div class="export-row">
+          <button class="export-btn" onclick="exportCSV()">📊 CSV</button>
+          <button class="export-btn" onclick="exportPDF()">📄 PDF</button>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🚨 Live Alerts</div>
+          <button class="card-action" onclick="dismissAll()">Dismiss all</button>
+        </div>
+        <div id="alertsContainer">
+          <div class="alert-item danger" onclick="dismissAlert(this)">
+            <div class="alert-icon">🚨</div>
+            <div>
+              <div class="alert-title">High waste — Table 4</div>
+              <div class="alert-desc">3 students left >60% food uneaten</div>
+            </div>
+            <div class="alert-time">2m ago</div>
+          </div>
+          <div class="alert-item warning" onclick="dismissAlert(this)">
+            <div class="alert-icon">⚠️</div>
+            <div>
+              <div class="alert-title">Paneer curry wasted</div>
+              <div class="alert-desc">Prep -15% for next similar meal</div>
+            </div>
+            <div class="alert-time">14m ago</div>
+          </div>
+          <div class="alert-item info" onclick="dismissAlert(this)">
+            <div class="alert-icon">💡</div>
+            <div>
+              <div class="alert-title">Smart Insight</div>
+              <div class="alert-desc">Opt for fruit cup additions for balanced plates</div>
+            </div>
+            <div class="alert-time">1h ago</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sanitation Analysis -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🧼 Sanitation AI Analysis</div>
+        </div>
+        <div>
+          <p style="font-size:0.75rem;color:var(--text3);margin-bottom:12px;">Take a picture of the mess hall (sinks, floors, bins) to get an automated recommendation.</p>
+          
+          <label class="file-upload-btn" for="aiImageInput">📁 Choose Image</label>
+          <input type="file" id="aiImageInput" accept="image/*" onchange="showFileName()">
+          <span id="aiFileName" style="font-size:0.75rem;color:var(--text3);margin-left:8px;"></span>
+          
+          <div style="margin-top:8px;">
+            <button type="button" class="snap-btn" style="width:100%" onclick="analyzePhoto(event)">🤖 Analyze Photo</button>
+          </div>
+
+          <div id="aiResult" style="margin-top: 16px; display: none; padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;">
+            <h4 style="font-family:'Syne',sans-serif;font-size:0.8rem;margin-bottom: 6px;">Analysis Result</h4>
+            <p style="font-size:0.75rem;margin-bottom:4px;color:var(--text2);"><b>Detected:</b> <span id="aiDetected" style="color:var(--text);"></span> (<span id="aiConfidence"></span>%)</p>
+            <p style="font-size:0.75rem;color:var(--text2);"><b>Action:</b> <span id="aiAction" style="color: var(--gold);"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /dashboardView -->
+
+  <!-- Students View -->
+  <div id="studentsView" class="content" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👥 Students Management</div>
+        <button class="generate-btn" onclick="fetchStudents()">🔄 Refresh List</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="att-table" id="studentsTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Hostel</th>
+              <th>EcoPoints</th>
+              <th>Streak</th>
+              <th>Clean Meals</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <!-- Data injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </div><!-- /studentsView -->
+
+  <!-- ── WASTE AI VIEW ── -->
+  <div id="wasteAIView" class="content" style="display:none;">
+
+    <!-- Header -->
+    <div style="margin-bottom:20px;">
+      <h2 style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;display:flex;align-items:center;gap:10px;">🤖 Waste Intelligence <span style="font-size:0.65rem;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--green-dim);color:var(--green);border:1px solid rgba(29,185,84,.25);">AI-POWERED</span></h2>
+      <p style="font-size:0.8rem;color:var(--text3);margin-top:4px;">XGBoost predictive model · Behavioral analytics · Prep optimization</p>
+    </div>
+
+    <!-- Row 1: Log Form + Prediction -->
+    <div class="wasteai-grid">
+
+      <!-- Log Meal Data -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 Log Meal Data</div></div>
+        <p style="font-size:0.75rem;color:var(--text3);margin-bottom:14px;">Record today's mess session to train the AI model.</p>
+        <div class="waste-form-row">
+          <input type="date" id="wDate" style="flex:1.2;">
+          <select id="wDay">
+            <option value="0">Monday</option>
+            <option value="1">Tuesday</option>
+            <option value="2">Wednesday</option>
+            <option value="3">Thursday</option>
+            <option value="4">Friday</option>
+            <option value="5">Saturday</option>
+            <option value="6">Sunday</option>
+          </select>
+        </div>
+        <div class="waste-form-row">
+          <select id="wMeal">
+            <option value="breakfast">🌅 Breakfast</option>
+            <option value="lunch">☀️ Lunch</option>
+            <option value="dinner">🌙 Dinner</option>
+          </select>
+          <input type="number" id="wAttend" placeholder="Attendance (students)" min="1" max="1000">
+          <input type="number" id="wWaste" placeholder="Waste (kg)" step="0.1" min="0">
+        </div>
+        <button class="gen-btn" onclick="logWasteEntry()" id="wLogBtn">📝 Log Entry</button>
+        <div id="wLogMsg" style="font-size:0.75rem;color:var(--green);margin-top:8px;min-height:18px;"></div>
+      </div>
+
+      <!-- Prediction -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">🔮 Waste Prediction</div></div>
+        <p style="font-size:0.75rem;color:var(--text3);margin-bottom:14px;">Predict food waste for an upcoming meal using the trained XGBoost model.</p>
+        <div class="waste-form-row">
+          <select id="pMeal">
+            <option value="breakfast">🌅 Breakfast</option>
+            <option value="lunch">☀️ Lunch</option>
+            <option value="dinner">🌙 Dinner</option>
+          </select>
+          <select id="pDay">
+            <option value="0">Monday</option>
+            <option value="1">Tuesday</option>
+            <option value="2">Wednesday</option>
+            <option value="3">Thursday</option>
+            <option value="4">Friday</option>
+            <option value="5">Saturday</option>
+            <option value="6">Sunday</option>
+          </select>
+          <input type="number" id="pAttend" placeholder="Expected Attendance" min="1" max="1000" value="200">
+        </div>
+        <button class="gen-btn" onclick="runPrediction()" id="pRunBtn">⚡ Run Prediction</button>
+        <div id="predResult" style="margin-top:14px;display:none;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:0.68rem;color:var(--text3);margin-bottom:3px;">PREDICTED WASTE</div>
+              <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--text);" id="predWaste">–</div>
+            </div>
+            <div>
+              <div style="font-size:0.68rem;color:var(--text3);margin-bottom:3px;">BASELINE</div>
+              <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text3);" id="predBaseline">–</div>
+            </div>
+            <span class="pred-badge ok" id="predDeltaBadge">–</span>
+          </div>
+          <div style="margin-top:8px;font-size:0.72rem;color:var(--text3);">Exp. attendance: <span id="predAttend" style="color:var(--text);font-weight:600;">–</span> &nbsp;·&nbsp; Model MAE: <span id="predMAE" style="color:var(--text);">–</span> kg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: 7-Day Trend Chart -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">📈 7-Day Attendance &amp; Waste Trend</div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div> Attendance</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--amber);"></div> Waste (kg)</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:10px;height:130px;padding-bottom:4px;" id="dualChartWrap">
+        <div style="color:var(--text3);font-size:0.75rem;margin:auto;">Loading chart…</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px;" id="dualChartLabels"></div>
+    </div>
+
+    <!-- Row 3: Behavioral Analytics -->
+    <div class="wasteai-grid-3" id="behaviorCards">
+      <div class="card"><div style="color:var(--text3);font-size:0.75rem;">Loading analytics…</div></div>
+    </div>
+
+    <!-- Row 4: AI Recommendations -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">💡 AI Prep Recommendations</div>
+        <button class="card-action" onclick="loadWasteAI()">🔄 Refresh</button>
+      </div>
+      <div id="recSummary" style="font-size:0.78rem;color:var(--text2);margin-bottom:14px;padding:10px 14px;background:var(--bg);border-radius:10px;border:1px solid var(--border);">Loading…</div>
+      <div id="recList"></div>
+    </div>
+
+  </div><!-- /wasteAIView -->
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // Auth check
+  if (!localStorage.getItem("admin_id") || localStorage.getItem("admin_role") !== "admin") {
+      window.location.href = "admin_login.html";
+  }
+
+  // Populate Admin Name
+  if(localStorage.getItem("admin_name")){
+      document.getElementById('adminName').textContent = localStorage.getItem("admin_name");
+  }
+
+  function logoutAdmin() {
+      localStorage.removeItem("admin_id");
+      localStorage.removeItem("admin_name");
+      localStorage.removeItem("admin_role");
+      window.location.href = "admin_login.html";
+  }
+
+  // Live clock
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('nowTime').textContent = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+
+  // Bar chart data
+  let chartData = {
+    breakfast: [0, 0, 0, 0, 0, 0, 0],
+    lunch: [0, 0, 0, 0, 0, 0, 0],
+    dinner: [0, 0, 0, 0, 0, 0, 0]
+  };
+  const maxVal = 450;
+  let currentMeal = 'breakfast';
+  let adminData = null;
+
+  async function loadDashboardData() {
+    try {
+      let res = await fetch("http://127.0.0.1:8000/api/admin/dashboard_data");
+      let data = await res.json();
+      adminData = data;
+      
+      // KPIs
+      document.getElementById('attendCount').innerText = data.kpis.attendance;
+      document.getElementById('wasteReduced').innerText = data.kpis.waste_reduced;
+      document.getElementById('savingsCount').innerText = data.kpis.savings;
+      document.getElementById('wasteCount').innerText = data.kpis.high_waste_alerts;
+      
+      // Chart
+      chartData = data.chartData;
+      renderBars(currentMeal);
+      
+      // Alerts
+      renderAlerts(data.alerts);
+      
+      // Donut
+      renderDonut(data.wasteDistribution);
+      
+    } catch (e) {
+      console.error("Error loading dashboard data:", e);
+      showToast("❌ Error connecting to server");
+    }
+  }
+
+  function renderBars(meal) {
+    const data = chartData[meal] || [0, 0, 0, 0, 0, 0, 0];
+    const container = document.getElementById('barChart');
+    container.innerHTML = data.map((v, i) => {
+      const pct = Math.min(Math.round((v / maxVal) * 100), 100);
+      const color = i === 6 ? 'green' : (v < 280 ? 'red' : 'green');
+      return `<div class="bar-col">
+        <div class="bar-val">${v}</div>
+        <div class="bar-wrap">
+          <div class="bar-fill ${color}" data-h="${pct}" style="height:0%"></div>
+        </div>
+      </div>`;
+    }).join('');
+    // Animate after paint
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach(el => {
+        el.style.height = el.dataset.h + '%';
+      });
+    }, 80);
+  }
+
+  function renderAlerts(alerts) {
+      const container = document.getElementById("alertsContainer");
+      if (!alerts || alerts.length === 0) {
+          container.innerHTML = `<div style="font-size:0.8rem;color:var(--text3);text-align:center;padding:20px;">No new alerts</div>`;
+          return;
+      }
+      
+      container.innerHTML = alerts.map(a => `
+          <div class="alert-item ${a.type}" onclick="dismissAlert(this, ${a.id})">
+            <div class="alert-icon">${a.icon}</div>
+            <div>
+              <div class="alert-title">${a.title}</div>
+              <div class="alert-desc">${a.desc}</div>
+            </div>
+            <div class="alert-time">${a.time}</div>
+          </div>
+      `).join("");
+  }
+  
+  function renderDonut(wd) {
+      const container = document.getElementById("donutWrap");
+      const circum = 2 * Math.PI * 38; // 238.76
+      
+      let dashoffset = 0;
+      let circlesHTML = '';
+      let legendsHTML = '';
+      
+      wd.categories.forEach(cat => {
+          const dashLen = (cat.percentage / 100) * circum;
+          const gapLen = circum - dashLen;
+          
+          circlesHTML += `<circle cx="50" cy="50" r="38" fill="none" stroke="${cat.stroke}" stroke-width="14"
+              stroke-dasharray="${dashLen} ${gapLen}" stroke-dashoffset="${-dashoffset}" transform="rotate(-90 50 50)"/>`;
+              
+          dashoffset += dashLen;
+          
+          legendsHTML += `
+            <div class="donut-leg">
+              <div class="donut-dot" style="background:${cat.color};"></div>
+              <div class="donut-leg-name">${cat.name}</div>
+              <div class="donut-leg-val" style="color:${cat.color};">${cat.percentage}%</div>
+            </div>`;
+      });
+      
+      container.innerHTML = `
+          <svg class="donut-svg" width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="38" fill="none" stroke="var(--bg)" stroke-width="14"/>
+            ${circlesHTML}
+            <text x="50" y="46" text-anchor="middle" fill="var(--text)" font-size="10" font-family="Syne" font-weight="800">${wd.total}</text>
+            <text x="50" y="57" text-anchor="middle" fill="var(--text3)" font-size="6.5" font-family="DM Sans">${wd.unit}</text>
+          </svg>
+          <div class="donut-legends">
+            ${legendsHTML}
+          </div>
+      `;
+  }
+  
+  function exportCSV() {
+      if (!adminData) return showToast("⚠️ Data not loaded yet");
+      
+      let csvContent = "data:text/csv;charset=utf-8,Day,Breakfast,Lunch,Dinner\n";
+      const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Today"];
+      
+      for (let i = 0; i < 7; i++) {
+          let b = adminData.chartData.breakfast[i];
+          let l = adminData.chartData.lunch[i];
+          let d = adminData.chartData.dinner[i];
+          csvContent += `${days[i]},${b},${l},${d}\n`;
+      }
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "meal_analysis.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('📊 Exported to CSV');
+  }
+  
+  function exportPDF() {
+      window.print();
+  }
+
+  function setMealTab(el, meal) {
+    document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentMeal = meal;
+    renderBars(meal);
+  }
+
+  // Sanitation AI Upload name update
+  function showFileName() {
+    const input = document.getElementById('aiImageInput');
+    if(input.files.length > 0) {
+      document.getElementById('aiFileName').textContent = input.files[0].name;
+    } else {
+      document.getElementById('aiFileName').textContent = '';
+    }
+  }
+
+  // Sanitation AI logic
+  async function analyzePhoto(event) {
+      if (event) event.preventDefault();
+
+      let fileInput = document.getElementById("aiImageInput");
+      if (!fileInput.files.length) {
+          showToast("⚠️ Please select an image first!");
+          return;
+      }
+
+      document.getElementById("aiResult").style.display = "block";
+      document.getElementById("aiDetected").innerText = "Analyzing...";
+      document.getElementById("aiConfidence").innerText = "...";
+      document.getElementById("aiAction").innerText = "Please wait...";
+
+      let formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      try {
+          let res = await fetch("http://127.0.0.1:8000/analyze_sanitation", {
+              method: "POST",
+              body: formData
+          });
+          let data = await res.json();
+
+          if (data.error) {
+              document.getElementById("aiDetected").innerText = "Error: " + data.error;
+              document.getElementById("aiAction").innerText = "Is the model trained?";
+          } else {
+              document.getElementById("aiDetected").innerText = data.prediction.replace(/_/g, " ").toUpperCase();
+              document.getElementById("aiConfidence").innerText = data.confidence;
+              document.getElementById("aiAction").innerText = data.recommendation;
+              showToast("✅ Image analyzed successfully!");
+          }
+      } catch (e) {
+          document.getElementById("aiDetected").innerText = "Network Error";
+          document.getElementById("aiAction").innerText = "Failed to connect to backend.";
+      }
+  }
+
+  // QR Generator & Attendance Logic
+  let mealID = null;
+  let qr = null;
+  
+  async function generateQR() {
+    let meal = document.getElementById("mealSelect").value;
+    const box = document.getElementById('qrBox');
+    box.innerHTML = '<div style="color:var(--text3);font-size:1rem;margin:auto;">⏳ Generating...</div>';
+    box.classList.remove('active');
+
+    try {
+      let res = await fetch(`http://127.0.0.1:8000/generate_qr/${meal}`);
+      let data = await res.json();
+
+      mealID = data.meal_id;
+      document.getElementById("mealIdDisplay").innerText = "Session ID: " + mealID;
+      
+      box.innerHTML = "";
+      box.classList.add('active');
+      qr = new QRCode(box, {
+          text: data.qr_data,
+          width: 220,
+          height: 220,
+          colorDark: "#000000",
+          colorLight: "#1db954"
+      });
+
+      showToast(`✅ QR generated for ${meal}`);
+    } catch(e) {
+      box.innerHTML = '🔲';
+      showToast(`❌ Error generating QR`);
+    }
+  }
+
+  async function updateAttendance() {
+      if (!mealID) return;
+      try {
+          let res = await fetch(`http://127.0.0.1:8000/attendance/${mealID}`);
+          let data = await res.json();
+          document.getElementById("attendCount").innerText = data.attendance;
+      } catch (e) {
+          console.log("Polling error");
+      }
+  }
+  
+  // Continuously poll for live attendance
+  setInterval(updateAttendance, 2000);
+
+  // Alerts
+  async function dismissAlert(el, alertId) {
+    if (alertId) {
+        try {
+            await fetch(`http://127.0.0.1:8000/api/admin/alerts/${alertId}`, { method: "DELETE" });
+        } catch(e) {
+            console.error(e);
         }
+    }
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    el.style.transition = 'all 0.3s';
+    setTimeout(() => el.remove(), 300);
+    showToast('🗑️ Alert dismissed');
+  }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const header = document.querySelector("h1");
-            if (header) {
-                const logoutBtn = document.createElement("button");
-                logoutBtn.innerText = "Logout";
-                logoutBtn.style.marginLeft = "20px";
-                logoutBtn.style.cursor = "pointer";
-                logoutBtn.onclick = () => {
-                    localStorage.removeItem("admin_id");
-                    localStorage.removeItem("admin_name");
-                    localStorage.removeItem("admin_role");
-                    window.location.href = "login.html";
-                };
-                header.appendChild(logoutBtn);
-            }
-        });
+  async function dismissAll() {
+    // Optionally alert the backend that all alerts were dismissed
+    document.querySelectorAll('.alert-item').forEach((el, i) => {
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(20px)';
+        el.style.transition = 'all 0.3s';
+        setTimeout(() => el.remove(), 300);
+      }, i * 100);
+    });
+    showToast('✅ All alerts cleared');
+  }
 
-        let mealID = null
-        let qr = null
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    loadDashboardData();
+  });
 
-        async function generateQR() {
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
 
-            let meal = document.getElementById("meal").value
+  function setNav(el) {
+    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    
+    const text = el.textContent.trim();
+    const allViews = ['dashboardView', 'studentsView', 'wasteAIView'];
+    allViews.forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
 
-            let res = await fetch(`http://127.0.0.1:8000/generate_qr/${meal}`)
-            let data = await res.json()
+    if (text.includes("Dashboard")) {
+        document.getElementById("dashboardView").style.display = "block";
+        loadDashboardData();
+    } else if (text.includes("Students")) {
+        document.getElementById("studentsView").style.display = "block";
+        fetchStudents();
+    } else if (text.includes("Waste AI")) {
+        document.getElementById("wasteAIView").style.display = "block";
+        // Pre-fill date fields
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('wDate').value = today;
+        const todayDow = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+        document.getElementById('wDay').value = String(todayDow);
+        document.getElementById('pDay').value  = String(todayDow);
+        loadWasteAI();
+    } else {
+        showToast("🚀 " + text + " - Coming Soon!");
+        setTimeout(() => {
+            document.querySelectorAll('.nav-link').forEach(n => {
+                if(n.textContent.includes("Dashboard")) n.classList.add('active');
+                else n.classList.remove('active');
+            });
+            document.getElementById("dashboardView").style.display = "block";
+        }, 1500);
+    }
+  }
 
-            mealID = data.meal_id
+  async function fetchStudents() {
+    try {
+        const res = await fetch("http://127.0.0.1:8000/api/admin/students");
+        const data = await res.json();
+        const tbody = document.getElementById("studentsTableBody");
+        tbody.innerHTML = data.map(s => `
+            <tr>
+                <td style="font-weight:600;color:var(--text);">${s.name}</td>
+                <td>${s.hostel}</td>
+                <td style="color:var(--green);font-weight:700;">${s.eco_points}</td>
+                <td>🔥 ${s.streak}</td>
+                <td>🍽️ ${s.clean_meals}</td>
+                <td style="font-size:0.75rem;color:var(--text3);">${s.email}</td>
+            </tr>
+        `).join("");
+    } catch (e) {
+        showToast("❌ Error fetching students");
+    }
+  }
 
-            document.getElementById("session").innerText =
-                "Session ID: " + mealID
+  /* ────────────────────────────────────────────────────────────
+     WASTE AI — fetch + render helpers
+  ──────────────────────────────────────────────────────────── */
 
-            document.getElementById("qrBox").innerHTML = ""
+  async function loadWasteAI() {
+    try {
+      const [trendsRes, behaviorRes, recRes] = await Promise.all([
+        fetch("http://127.0.0.1:8000/api/waste/trends"),
+        fetch("http://127.0.0.1:8000/api/waste/behavior"),
+        fetch("http://127.0.0.1:8000/api/waste/recommendations")
+      ]);
+      const trends   = await trendsRes.json();
+      const behavior = await behaviorRes.json();
+      const recs     = await recRes.json();
 
-            qr = new QRCode(document.getElementById("qrBox"), {
-                text: data.qr_data,
-                width: 220,
-                height: 220
-            })
+      renderDualChart(trends);
+      renderBehavior(behavior);
+      renderRecommendations(recs);
+    } catch (e) {
+      showToast("❌ Could not load Waste AI data — is the server running?");
+    }
+  }
 
-        }
+  /* ── Log meal entry ── */
+  async function logWasteEntry() {
+    const date      = document.getElementById('wDate').value;
+    const dow       = parseInt(document.getElementById('wDay').value);
+    const meal      = document.getElementById('wMeal').value;
+    const attend    = parseInt(document.getElementById('wAttend').value);
+    const waste     = parseFloat(document.getElementById('wWaste').value);
 
-        async function updateAttendance() {
+    if (!date || isNaN(attend) || isNaN(waste) || attend <= 0 || waste < 0) {
+      showToast("⚠️ Please fill in all fields correctly.");
+      return;
+    }
 
-            if (!mealID) return
+    const btn = document.getElementById('wLogBtn');
+    btn.disabled = true; btn.textContent = '⏳ Logging…';
 
-            try {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/waste/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, day_of_week: dow, meal_type: meal, attendance: attend, waste_kg: waste })
+      });
+      const data = await res.json();
+      document.getElementById('wLogMsg').textContent =
+        `✅ Logged! Total records: ${data.rows_total}`;
+      document.getElementById('wAttend').value = '';
+      document.getElementById('wWaste').value  = '';
+      showToast("✅ Meal data logged successfully");
+      // Refresh charts
+      loadWasteAI();
+    } catch(e) {
+      document.getElementById('wLogMsg').textContent = '❌ Failed to log — check server connection.';
+    } finally {
+      btn.disabled = false; btn.textContent = '📝 Log Entry';
+    }
+  }
 
-                let res = await fetch(
-                    `http://127.0.0.1:8000/attendance/${mealID}`
-                )
+  /* ── Run prediction ── */
+  async function runPrediction() {
+    const meal    = document.getElementById('pMeal').value;
+    const dow     = parseInt(document.getElementById('pDay').value);
+    const attend  = parseInt(document.getElementById('pAttend').value) || 200;
 
-                let data = await res.json()
+    const btn = document.getElementById('pRunBtn');
+    btn.disabled = true; btn.textContent = '⏳ Predicting…';
 
-                document.getElementById("attendance").innerText =
-                    data.attendance
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/waste/predict?meal_type=${meal}&day_of_week=${dow}&attendance=${attend}`
+      );
+      const d = await res.json();
 
-            }
+      if (d.error) { showToast("⚠️ " + d.error); return; }
 
-            catch (e) {
-                console.log("Polling error")
-            }
+      document.getElementById('predWaste').textContent    = `${d.predicted_waste_kg} kg`;
+      document.getElementById('predBaseline').textContent = `${d.baseline_waste_kg} kg baseline`;
+      document.getElementById('predAttend').textContent   = d.expected_attendance;
+      document.getElementById('predMAE').textContent      = d.model_mae ?? '—';
 
-        }
+      const badge = document.getElementById('predDeltaBadge');
+      const dp    = d.delta_pct;
+      badge.className = 'pred-badge ' + (dp > 8 ? 'over' : dp < -8 ? 'under' : 'ok');
+      badge.textContent = (dp >= 0 ? '▲' : '▼') + ' ' + Math.abs(dp) + '% vs. baseline';
 
-        setInterval(updateAttendance, 2000);
+      document.getElementById('predResult').style.display = 'block';
+      showToast(`🔮 Predicted: ${d.predicted_waste_kg} kg for ${d.day} ${meal}`);
+    } catch(e) {
+      showToast("❌ Prediction failed — check server connection.");
+    } finally {
+      btn.disabled = false; btn.textContent = '⚡ Run Prediction';
+    }
+  }
 
-    </script>
+  /* ── Dual bar chart (attendance + waste) ── */
+  function renderDualChart(trends) {
+    const wrap   = document.getElementById('dualChartWrap');
+    const lblDiv = document.getElementById('dualChartLabels');
+    if (!trends || !trends.labels) return;
 
+    const maxAtt   = Math.max(...trends.attendance, 1);
+    const maxWaste = Math.max(...trends.waste_kg, 0.1);
 
+    wrap.innerHTML = trends.labels.map((lbl, i) => {
+      const attPct   = Math.round((trends.attendance[i] / maxAtt)   * 100);
+      const wastePct = Math.round((trends.waste_kg[i]   / maxWaste) * 100);
+      return `
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:3px;">
+          <div style="display:flex;align-items:flex-end;gap:3px;height:110px;width:100%;">
+            <div class="dual-bar attend" data-h="${attPct}"   style="flex:1;height:0%;"></div>
+            <div class="dual-bar waste"  data-h="${wastePct}" style="flex:1;height:0%;"></div>
+          </div>
+          <span style="font-size:0.6rem;color:var(--text3);">${lbl}</span>
+        </div>`;
+    }).join('');
+
+    lblDiv.innerHTML = `
+      <span style="font-size:0.68rem;color:var(--text3);">
+        Max attend: <b style="color:var(--text);">${maxAtt}</b> &nbsp;|&nbsp;
+        Max waste: <b style="color:var(--text);">${maxWaste} kg</b>
+      </span>`;
+
+    // animate
+    setTimeout(() => {
+      document.querySelectorAll('.dual-bar').forEach(el => {
+        el.style.height = el.dataset.h + '%';
+      });
+    }, 80);
+  }
+
+  /* ── Behavioral analytics cards ── */
+  function renderBehavior(b) {
+    const container = document.getElementById('behaviorCards');
+    if (!b || b.error) {
+      container.innerHTML = `<div class="card"><p style="color:var(--text3);font-size:0.78rem;">No behavioral data yet — log more meals.</p></div>`;
+      return;
+    }
+
+    // Card 1: Key Metrics
+    const peakMeal = b.peak_period;
+    const card1 = `
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">📊 Key Metrics</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div class="metric-sub">WASTE PER STUDENT</div>
+            <div class="metric-big">${b.waste_per_student_grams}<span style="font-size:1rem;font-weight:500;color:var(--text3);"> g</span></div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;">
+            <div class="metric-sub">PEAK ATTENDANCE SLOT</div>
+            <div style="font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:700;color:var(--amber);margin-top:5px;">
+              ${peakMeal.day} · ${peakMeal.meal.charAt(0).toUpperCase() + peakMeal.meal.slice(1)}
+            </div>
+            <div class="metric-sub" style="margin-top:3px;">${peakMeal.avg_attendance} avg students</div>
+          </div>
+        </div>
+      </div>`;
+
+    // Card 2: High-Waste Meal Patterns
+    const highWasteRows = (b.high_waste_meals || []).map(m =>
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+        <span style="font-size:0.78rem;color:var(--text2);">${m.day} ${m.meal_type}</span>
+        <span style="font-family:'Syne',sans-serif;font-size:0.78rem;font-weight:700;color:var(--red);">${m.avg_waste} kg</span>
+       </div>`
+    ).join('');
+    const card2 = `
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">🔴 High-Waste Slots</div>
+        ${highWasteRows || '<p style="font-size:0.75rem;color:var(--text3);">No data yet</p>'}
+      </div>`;
+
+    // Card 3: Meal-type summary mini-heatmap
+    const meals  = ['breakfast','lunch','dinner'];
+    const colors = { breakfast: 'rgba(77,159,255,.18)', lunch: 'rgba(29,185,84,.18)', dinner: 'rgba(168,85,247,.18)' };
+    const txts   = { breakfast: 'var(--blue)', lunch: 'var(--green)', dinner: 'var(--purple)' };
+    const mealRows = meals.map(meal => {
+      const ms = (b.meal_summary || {})[meal];
+      if (!ms) return '';
+      return `
+        <div style="padding:9px 12px;border-radius:10px;background:${colors[meal]};margin-bottom:7px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.78rem;font-weight:600;color:${txts[meal]};">${meal.charAt(0).toUpperCase()}${meal.slice(1)}</span>
+            <span style="font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:800;color:var(--text);">${ms.avg_waste} kg</span>
+          </div>
+          <div style="font-size:0.65rem;color:var(--text3);margin-top:2px;">${ms.avg_attend} avg students</div>
+        </div>`;
+    }).join('');
+    const card3 = `
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">🍽️ Avg Waste by Meal</div>
+        ${mealRows || '<p style="font-size:0.75rem;color:var(--text3);">No data yet</p>'}
+      </div>`;
+
+    container.innerHTML = card1 + card2 + card3;
+  }
+
+  /* ── Recommendations ── */
+  function renderRecommendations(data) {
+    document.getElementById('recSummary').textContent = data.summary || 'No summary available.';
+
+    const recs = data.recommendations || [];
+    const list = document.getElementById('recList');
+    if (!recs.length) {
+      list.innerHTML = `<p style="font-size:0.78rem;color:var(--text3);text-align:center;padding:16px;">
+        🟢 All meals are within optimal waste range — no action needed!
+      </p>`;
+      return;
+    }
+
+    list.innerHTML = recs.map(r => `
+      <div class="rec-item ${r.severity}">
+        <div style="font-weight:600;margin-bottom:3px;">${r.action}</div>
+        <div style="font-size:0.7rem;opacity:.6;">
+          Predicted ${r.predicted_kg} kg &nbsp;·&nbsp; Baseline ${r.baseline_kg} kg &nbsp;·&nbsp;
+          <span style="font-weight:700;">${r.delta_pct >= 0 ? '+' : ''}${r.delta_pct}% vs. baseline</span>
+        </div>
+      </div>`
+    ).join('');
+  }
+</script>
 </body>
-
 </html>
