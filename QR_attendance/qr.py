@@ -35,14 +35,6 @@ from fraud_detection import (
     check_time,
     check_location,
     check_duplicate_or_similar,
-    check_screen_capture,
-)
-from waste_ai.waste_intelligence import (
-    log_meal_entry,
-    predict_waste,
-    get_trends,
-    get_behavioral_analysis,
-    get_recommendations,
 )
 
 # Initialise the image-hash fraud DB on startup
@@ -71,16 +63,6 @@ clean_meals INTEGER DEFAULT 0,
 last_meal_date TEXT
 )
 """)
-
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS active_qrs (
-meal_id TEXT PRIMARY KEY,
-meal_type TEXT,
-created_at TEXT
-)
-""")
-
-conn.commit()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS plate_snaps (
@@ -165,8 +147,7 @@ def register(user: UserRegister):
         (user.name, user.email, user.role, user.hostel, hashed_password)
     )
     auth_conn.commit()
-    user_id = auth_cursor.lastrowid
-    return {"status": "success", "message": "User registered successfully", "id": str(user_id)}
+    return {"status": "success", "message": "User registered successfully"}
 
 @app.post("/login")
 def login(user: UserLogin):
@@ -195,16 +176,13 @@ def login(user: UserLogin):
 # GENERATE QR
 @app.get("/generate_qr/{meal_type}")
 def generate_qr(meal_type: str):
+
     global current_meal_id
+
     current_meal_id = f"{meal_type}_{uuid.uuid4().hex[:6]}"
-    
-    cursor.execute(
-        "INSERT INTO active_qrs (meal_id, meal_type, created_at) VALUES (?, ?, ?)",
-        (current_meal_id, meal_type, str(datetime.now()))
-    )
-    conn.commit()
 
     print("QR session:", current_meal_id)
+
     return {
         "meal_id": current_meal_id,
         "qr_data": current_meal_id
@@ -214,17 +192,14 @@ def generate_qr(meal_type: str):
 # SCAN QR
 @app.post("/scan_qr")
 def scan_qr(data: ScanData):
-    print("Scan:", data.student_id, data.meal_id)
 
-    # Validate if QR is active
-    cursor.execute("SELECT * FROM active_qrs WHERE meal_id=?", (data.meal_id,))
-    if not cursor.fetchone():
-        return {"status": "invalid_qr", "message": "The scanned QR code is either invalid or expired."}
+    print("Scan:", data.student_id, data.meal_id)
 
     cursor.execute(
         "SELECT * FROM attendance WHERE student_id=? AND meal_id=?",
         (data.student_id, data.meal_id)
     )
+
     if cursor.fetchone():
         return {"status": "already_scanned"}
 
@@ -232,7 +207,9 @@ def scan_qr(data: ScanData):
         "INSERT INTO attendance(student_id,meal_id,timestamp) VALUES (?,?,?)",
         (data.student_id, data.meal_id, str(datetime.now()))
     )
+
     conn.commit()
+
     return {"status": "scan_recorded"}
 
 
@@ -297,105 +274,121 @@ async def snap_plate(
     lon: Optional[float] = Form(None),
     image: UploadFile = File(...)
 ):
-    # ── 1. MEAL-TIME CHECK ────────────────────────────────────────────────
-    if not check_time(meal):
-        return {
-            "status": "fraud",
-            "clean": False,
-            "reason": f"Outside {meal} time window. Snaps only accepted during meal hours."
-        }
-
-    # ── 2. LOCATION CHECK (only if GPS was provided) ──────────────────────
-    if lat is not None and lon is not None:
-        if not check_location(lat, lon):
+    try:
+        # ── 1. MEAL-TIME CHECK ────────────────────────────────────────────────
+        if not check_time(meal):
             return {
                 "status": "fraud",
                 "clean": False,
-                "reason": "You appear to be outside the dining hall. Please snap from the mess."
+                "reason": f"Outside {meal} time window. Snaps only accepted during meal hours."
             }
 
-    # ── 3. SAVE UPLOAD TO TEMP FILE ───────────────────────────────────────
-    temp_dir  = tempfile.gettempdir()
-    temp_path = os.path.join(temp_dir, f"snap_{uuid.uuid4().hex}.jpg")
-    img_bytes = await image.read()
-    with open(temp_path, "wb") as f:
-        f.write(img_bytes)
+        # ── 2. LOCATION CHECK (only if GPS was provided) ──────────────────────
+        if lat is not None and lon is not None:
+            if not check_location(lat, lon):
+                return {
+                    "status": "fraud",
+                    "clean": False,
+                    "reason": "You appear to be outside the dining hall. Please snap from the mess."
+                }
 
-    # ── 4. DUPLICATE / CROSS-ACCOUNT SIMILARITY CHECK ────────────────────
-    fraud_result = check_duplicate_or_similar(temp_path, student_id, meal)
-    if not fraud_result["ok"]:
+        # ── 3. SAVE UPLOAD TO TEMP FILE ───────────────────────────────────────
+        temp_dir  = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, f"snap_{uuid.uuid4().hex}.jpg")
+        img_bytes = await image.read()
+
+        if not img_bytes:
+            return {"status": "error", "clean": False, "reason": "Empty image received. Please try again."}
+
+        with open(temp_path, "wb") as f:
+            f.write(img_bytes)
+
+        # ── 4. DUPLICATE / CROSS-ACCOUNT SIMILARITY CHECK ────────────────────
+        try:
+            fraud_result = check_duplicate_or_similar(temp_path, student_id, meal)
+        except Exception as e:
+            fraud_result = {"ok": True}  # If hash DB fails, don't block the upload
+
+        if not fraud_result["ok"]:
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+            return {
+                "status": "fraud",
+                "clean": False,
+                "reason": fraud_result["reason"]
+            }
+
+        # ── 5. AI PLATE VERIFICATION ──────────────────────────────────────────
+        try:
+            result = predict_image(temp_path)
+        except Exception as e:
+            result = {"error": str(e)}
+
         try:
             os.remove(temp_path)
         except Exception:
             pass
-        return {
-            "status": "fraud",
-            "clean": False,
-            "reason": fraud_result["reason"]
-        }
 
-    # ── 4. SCREEN-RECAPTURE / ANTI-SPOOFING CHECK ──────────────────────
-    screen_result = check_screen_capture(temp_path)
-    if not screen_result["ok"]:
-        try:
-            os.remove(temp_path)
-        except Exception:
-            pass
-        return {
-            "status": "fraud",
-            "clean": False,
-            "reason": screen_result["reason"]
-        }
+        is_clean = False
+        status   = "failed"
+        prediction_label = "unknown"
 
-    # ── 5. AI PLATE VERIFICATION ──────────────────────────────────────────
-    result = predict_image(temp_path)
+        if "error" in result:
+            # AI model unavailable — fail gracefully instead of crashing
+            return {
+                "status": "error",
+                "clean": False,
+                "reason": f"AI model unavailable: {result['error']}. Please contact admin."
+            }
 
-    try:
-        os.remove(temp_path)
-    except Exception:
-        pass
+        if "prediction" in result:
+            prediction_label = result["prediction"]
+            if prediction_label.lower() == "clean":
+                is_clean = True
+            status = "success" if is_clean else "failed"
 
-    is_clean = False
-    status   = "error"
-
-    if "prediction" in result:
-        prediction = result["prediction"]
-        # The vision model's "clean" class means the plate is empty → verified
-        if prediction.lower() == "clean":
-            is_clean = True
-        status = "success" if is_clean else "failed"
-
-    # ── 6. LOG SNAP & UPDATE STATS ────────────────────────────────────────
-    now_str = str(datetime.now())
-    cursor.execute(
-        "INSERT INTO plate_snaps (student_id, meal_type, is_clean, timestamp) VALUES (?, ?, ?, ?)",
-        (student_id, meal, is_clean, now_str)
-    )
-
-    if is_clean:
+        # ── 6. LOG SNAP & UPDATE STATS ────────────────────────────────────────
+        now_str = str(datetime.now())
         cursor.execute(
-            "SELECT eco_points, streak, clean_meals FROM student_stats WHERE student_id=?",
-            (student_id,)
+            "INSERT INTO plate_snaps (student_id, meal_type, is_clean, timestamp) VALUES (?, ?, ?, ?)",
+            (student_id, meal, is_clean, now_str)
         )
-        row = cursor.fetchone()
-        if row:
-            eco_points, streak, clean_meals = row
-            cursor.execute(
-                "UPDATE student_stats SET eco_points=?, streak=?, clean_meals=?, last_meal_date=? WHERE student_id=?",
-                (eco_points + 30, streak + 1, clean_meals + 1, now_str, student_id)
-            )
-        else:
-            cursor.execute(
-                "INSERT INTO student_stats (student_id, eco_points, streak, clean_meals, last_meal_date) VALUES (?, ?, ?, ?, ?)",
-                (student_id, 30, 1, 1, now_str)
-            )
-        conn.commit()
 
-    return {
-        "status": status,
-        "clean": is_clean,
-        "prediction": result.get("prediction", "unknown")
-    }
+        if is_clean:
+            cursor.execute(
+                "SELECT eco_points, streak, clean_meals FROM student_stats WHERE student_id=?",
+                (student_id,)
+            )
+            row = cursor.fetchone()
+            if row:
+                eco_points, streak, clean_meals = row
+                cursor.execute(
+                    "UPDATE student_stats SET eco_points=?, streak=?, clean_meals=?, last_meal_date=? WHERE student_id=?",
+                    (eco_points + 30, streak + 1, clean_meals + 1, now_str, student_id)
+                )
+            else:
+                cursor.execute(
+                    "INSERT INTO student_stats (student_id, eco_points, streak, clean_meals, last_meal_date) VALUES (?, ?, ?, ?, ?)",
+                    (student_id, 30, 1, 1, now_str)
+                )
+
+        conn.commit()  # Always commit — was missing for non-clean snaps
+
+        return {
+            "status": status,
+            "clean": is_clean,
+            "prediction": prediction_label
+        }
+
+    except Exception as e:
+        # Catch-all: return a proper JSON error instead of a 500 crash
+        return {
+            "status": "error",
+            "clean": False,
+            "reason": f"Server error: {str(e)}"
+        }
 
 
 @app.get("/api/leaderboard")
@@ -431,7 +424,11 @@ def get_student_history(student_id: str):
 
 @app.get("/student/{student_id}/impact")
 def get_student_impact(student_id: str):
-    cursor.execute("SELECT COUNT(*) FROM plate_snaps WHERE student_id=? AND is_clean=1", (student_id,))
+    # Filter to last 7 days so the "Weekly Impact" card is accurate
+    cursor.execute(
+        "SELECT COUNT(*) FROM plate_snaps WHERE student_id=? AND is_clean=1 AND timestamp >= datetime('now', '-7 days')",
+        (student_id,)
+    )
     clean_count = cursor.fetchone()[0]
     
     waste_saved = round(clean_count * 0.1, 1) # 0.1kg per plate
@@ -657,54 +654,3 @@ def get_public_stats():
         "waste_reduced": f"{waste_reduced}%" if waste_reduced < 100 else f"{waste_reduced}kg",
         "savings": f"₹{savings:,}"
     }
-
-# ── WASTE INTELLIGENCE ENDPOINTS ────────────────────────────────────────────
-
-class WasteLogEntry(BaseModel):
-    date: str
-    day_of_week: int          # 0 = Monday … 6 = Sunday
-    meal_type: str            # breakfast / lunch / dinner
-    attendance: int
-    waste_kg: float
-
-@app.post("/api/waste/log")
-def waste_log(entry: WasteLogEntry):
-    """Log a new mess meal entry (attendance + measured waste)."""
-    result = log_meal_entry(
-        date=entry.date,
-        day_of_week=entry.day_of_week,
-        meal_type=entry.meal_type,
-        attendance=entry.attendance,
-        waste_kg=entry.waste_kg,
-    )
-    return result
-
-@app.get("/api/waste/predict")
-def waste_predict(
-    meal_type:   str = "lunch",
-    day_of_week: int = 0,
-    attendance:  int = 200
-):
-    """Predict waste_kg for a future meal using the XGBoost model."""
-    return predict_waste(day_of_week=day_of_week, meal_type=meal_type, attendance=attendance)
-
-@app.get("/api/waste/trends")
-def waste_trends(days: int = 7):
-    """Return 7-day rolling attendance + waste_kg arrays for chart rendering."""
-    return get_trends(days=days)
-
-@app.get("/api/waste/behavior")
-def waste_behavior():
-    """Behavioral analysis: waste/student, peak periods, high-waste meal patterns."""
-    return get_behavioral_analysis()
-
-@app.get("/api/waste/recommendations")
-def waste_recommendations():
-    """AI-generated prep-reduction suggestions based on predicted vs. baseline waste."""
-    return get_recommendations()
-
-# ── END WASTE INTELLIGENCE ───────────────────────────────────────────────────
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
