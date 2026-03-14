@@ -741,13 +741,14 @@
       const data = await res.json();
 
       if (data.status === 'success') {
-        if (data.role === 'admin') {
+        const u = data.user;
+        if (u.role === 'admin') {
           showAlert('Error: This is a student login portal. Please use admin login.');
         } else {
-          localStorage.setItem('student_id', data.id);
-          localStorage.setItem('student_name', data.name);
-          localStorage.setItem('student_role', data.role);
-          showAlert('✅ Welcome back, ' + data.name + '!', 'success');
+          localStorage.setItem('student_id', u.id);
+          localStorage.setItem('student_name', u.name);
+          localStorage.setItem('student_role', u.role);
+          showAlert('✅ Welcome back, ' + u.name + '!', 'success');
           setTimeout(() => {
             window.location.href = 'student.html';
           }, 800);
