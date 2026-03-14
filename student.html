@@ -1,252 +1,944 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>PlateZero Student Dashboard</title>
-
-    <link rel="stylesheet" href="style1.css">
-
-    <script src="https://unpkg.com/html5-qrcode"></script>
-
-    <style>
-        #reader {
-            width: 260px;
-            margin: auto;
-        }
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlateZero - Student Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+:root{--green:#1db954;--green-light:#23e066;--green-dim:rgba(29,185,84,0.15);--bg:#0a0f0a;--bg2:#111811;--bg3:#172217;--surface:#1a221a;--surface2:#1f2b1f;--border:rgba(29,185,84,0.18);--text:#e8f5e9;--text2:#8fbc8f;--text3:#5a7a5a;--gold:#f5c518;--amber:#ff9500;--red:#ff4d4d;--blue:#4da6ff;--purple:#b06aff;--sidebar:230px;--topbar:58px;--radius:16px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;}
+.blob{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0;animation:blobFloat 9s ease-in-out infinite alternate;}
+.blob1{width:500px;height:500px;background:rgba(29,185,84,.06);top:-150px;right:-100px;}
+.blob2{width:300px;height:300px;background:rgba(77,166,255,.04);bottom:0;left:280px;animation-delay:-4s;}
+@keyframes blobFloat{from{transform:translateY(0) scale(1);}to{transform:translateY(30px) scale(1.06);}}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);background:rgba(10,15,10,.96);border-right:1px solid var(--border);backdrop-filter:blur(24px);z-index:200;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.35rem;color:var(--green);letter-spacing:-.5px;}
+.logo span{color:var(--text);}
+.logo-sub{font-size:.65rem;color:var(--text3);margin-top:2px;}
+.sb-profile{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-av{width:38px;height:38px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--green),#0a7d2e);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;color:#fff;box-shadow:0 0 0 2px rgba(29,185,84,.35);}
+.sb-name{font-size:.82rem;font-weight:600;color:var(--text);}
+.sb-badge{font-size:.62rem;color:var(--green);margin-top:1px;}
+.sb-nav{flex:1;padding:10px;overflow-y:auto;scrollbar-width:none;}
+.sb-nav::-webkit-scrollbar{display:none;}
+.nav-grp{font-size:.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:10px 10px 5px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;font-size:.8rem;font-weight:500;color:var(--text3);cursor:pointer;transition:all .2s;margin-bottom:1px;text-decoration:none;border:1px solid transparent;}
+.nav-item:hover{background:var(--surface);color:var(--text2);}
+.nav-item.active{background:var(--green-dim);color:var(--green);border-color:rgba(29,185,84,.2);}
+.nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+.nav-pill{margin-left:auto;background:var(--red);color:#fff;font-size:.58rem;font-weight:700;padding:2px 6px;border-radius:999px;}.focus-section{border:1px solid rgba(29,185,84,.5);box-shadow:0 0 0 3px rgba(29,185,84,.12);animation:focusPulse .9s ease both;}
+@keyframes focusPulse{0%{box-shadow:0 0 0 0 rgba(29,185,84,.2);}50%{box-shadow:0 0 0 12px rgba(29,185,84,.05);}100%{box-shadow:0 0 0 0 rgba(29,185,84,0);}}.sb-foot{padding:12px 10px;border-top:1px solid var(--border);}
+.logout-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;border-radius:11px;background:none;border:1px solid var(--border);color:var(--text3);font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s;}
+.logout-btn:hover{background:rgba(255,77,77,.1);color:var(--red);border-color:rgba(255,77,77,.3);}
+.topbar{position:fixed;top:0;left:var(--sidebar);right:0;height:var(--topbar);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:rgba(10,15,10,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.tb-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);}
+.tb-date{font-size:.78rem;color:var(--text3);margin-left:10px;}
+.tb-right{display:flex;align-items:center;gap:9px;}
+.pts-chip{display:flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid rgba(29,185,84,.3);padding:5px 14px;border-radius:999px;font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;color:var(--green);}
+.icon-btn{position:relative;width:34px;height:34px;border-radius:9px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;transition:all .2s;}
+.icon-btn:hover{background:var(--surface2);border-color:rgba(29,185,84,.3);}
+.n-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-left:4px;animation:pulse 1.5s ease-in-out infinite;vertical-align:middle;}
+.main{margin-left:var(--sidebar);padding-top:var(--topbar);min-height:100vh;position:relative;z-index:1;}
+.content{padding:22px 24px 40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;animation:fadeSlideUp .4s ease both;}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ct{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;}
+.cl{font-size:.7rem;color:var(--green);cursor:pointer;text-decoration:none;}
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:13px;animation:fadeSlideUp .4s ease both;transition:all .2s;}
+.kpi:hover{border-color:rgba(29,185,84,.35);transform:translateY(-2px);}
+.kpi-ico{font-size:1.6rem;flex-shrink:0;}
+.kpi-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;line-height:1;}
+.kpi-lbl{font-size:.68rem;color:var(--text3);margin-top:3px;}
+.kpi-tr{font-size:.63rem;margin-top:4px;font-weight:600;}
+.up{color:var(--green);}
+.profile-card{background:linear-gradient(135deg,var(--bg3),var(--surface));border:1px solid var(--border);border-radius:var(--radius);padding:22px;position:relative;overflow:hidden;animation:fadeSlideUp .4s ease both;}
+.profile-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(29,185,84,.18) 0%,transparent 70%);}
+.ptop{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.av-lg{width:62px;height:62px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--green),#0a7d2e);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:#fff;box-shadow:0 0 0 3px rgba(29,185,84,.25),0 6px 20px rgba(29,185,84,.18);}
+.p-name{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;}
+.p-badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-dim);color:var(--green);padding:3px 9px;border-radius:999px;font-size:.7rem;font-weight:600;border:1px solid rgba(29,185,84,.25);margin-top:4px;}
+.p-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+.ps{background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:11px 8px;text-align:center;}
+.ps-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--green);}
+.ps-lbl{font-size:.62rem;color:var(--text3);margin-top:2px;}
+.snap-card{background:linear-gradient(135deg,rgba(29,185,84,.17),rgba(29,185,84,.05));border:1px solid rgba(29,185,84,.35);border-radius:var(--radius);padding:20px;animation:fadeSlideUp .4s .05s ease both;}
+.snap-lbl{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:5px;}
+.snap-sub{font-size:.78rem;color:var(--text2);margin-bottom:3px;}
+.snap-cd{font-family:'Syne',sans-serif;font-size:.88rem;color:var(--amber);font-weight:600;margin-bottom:14px;}
+.snap-btn{width:100%;background:var(--green);color:#000;border:none;padding:12px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.snap-btn:hover{background:var(--green-light);transform:translateY(-1px);box-shadow:0 6px 20px rgba(29,185,84,.3);}
+.snap-slots{display:flex;gap:6px;margin-top:12px;}
+.snap-slot{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:7px 4px;text-align:center;font-size:.68rem;color:var(--text3);}
+.snap-slot.done{background:var(--green-dim);border-color:rgba(29,185,84,.3);color:var(--green);font-weight:600;}
+.meal-slot{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:11px;margin-bottom:7px;background:var(--bg);border:1px solid var(--border);transition:all .2s;}
+.meal-slot:hover{border-color:rgba(29,185,84,.3);}
+.meal-slot.now{background:var(--green-dim);border-color:rgba(29,185,84,.4);}
+.m-ico{font-size:1.4rem;width:36px;text-align:center;flex-shrink:0;}
+.m-info{flex:1;min-width:0;}
+.m-name{font-size:.85rem;font-weight:600;}
+.m-time{font-size:.68rem;color:var(--text3);margin-top:1px;}
+.m-items{font-size:.68rem;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.m-tag{font-size:.66rem;font-weight:700;padding:3px 9px;border-radius:999px;flex-shrink:0;}
+.mt-done{background:var(--green-dim);color:var(--green);border:1px solid rgba(29,185,84,.3);}
+.mt-open{background:rgba(255,149,0,.12);color:var(--amber);border:1px solid rgba(255,149,0,.3);}
+.mt-soon{background:var(--bg2);color:var(--text3);border:1px solid var(--border);}
+.streak-days{display:flex;gap:7px;}
+.day-chip{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.day-dot{width:100%;aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:transform .2s;}
+.day-dot.done{background:var(--green-dim);border:1.5px solid var(--green);}
+.day-dot.miss{background:rgba(255,77,77,.1);border:1.5px solid rgba(255,77,77,.25);}
+.day-dot.today{background:var(--green);box-shadow:0 0 12px rgba(29,185,84,.5);}
+.day-lbl{font-size:.6rem;color:var(--text3);font-weight:500;}
+.impact-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.imp{background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:13px 10px;text-align:center;}
+.imp-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:var(--green);}
+.imp-lbl{font-size:.64rem;color:var(--text3);margin-top:3px;line-height:1.3;}
+.legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+.leg{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--text2);}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:100px;}
+.bar-grp{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.bar-stacks{display:flex;align-items:flex-end;gap:2px;height:84px;width:100%;justify-content:center;}
+.bar{width:11px;border-radius:4px 4px 0 0;transition:height 1s cubic-bezier(.4,0,.2,1);}
+.bar-lbl{font-size:.58rem;color:var(--text3);}
+.nut-sum{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:13px;}
+.nut{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 7px;text-align:center;}
+.nut-val{font-family:'Syne',sans-serif;font-weight:700;font-size:.92rem;}
+.nut-lbl{font-size:.6rem;color:var(--text3);margin-top:2px;}
+.lb-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;margin-bottom:5px;transition:background .2s;}
+.lb-row:hover{background:var(--bg);}
+.lb-row.you{background:var(--green-dim);border:1px solid rgba(29,185,84,.3);}
+.lb-rk{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;width:22px;text-align:center;color:var(--text3);flex-shrink:0;}
+.lb-rk.gold{color:var(--gold);}.lb-rk.silver{color:#c0c0c0;}.lb-rk.bronze{color:#cd7f32;}
+.lb-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+.lb-nm{flex:1;font-size:.82rem;font-weight:500;}
+.lb-bar-w{flex:1;}
+.lb-bar-bg{background:var(--bg);border-radius:999px;height:5px;overflow:hidden;}
+.lb-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--green-light));}
+.lb-pts{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--green);}
+.lb-sub{font-size:.6rem;color:var(--text3);}
+.rewards-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
+.rw{background:var(--bg);border:1px solid var(--border);border-radius:13px;padding:15px 10px;text-align:center;transition:all .2s;}
+.rw:hover{border-color:rgba(29,185,84,.4);transform:translateY(-2px);background:var(--surface2);}
+.r-ico{font-size:1.75rem;margin-bottom:6px;}
+.r-nm{font-size:.75rem;font-weight:600;}
+.r-pts{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;color:var(--green);margin-top:3px;}
+.r-btn{margin-top:9px;background:var(--green-dim);color:var(--green);border:1px solid rgba(29,185,84,.3);border-radius:8px;padding:5px 10px;font-size:.68rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;width:100%;}
+.r-btn:hover:not(:disabled){background:var(--green);color:#000;}
+.r-btn:disabled{opacity:.4;cursor:not-allowed;}
+.water-row-glasses{display:flex;gap:7px;margin-bottom:12px;}
+.glass{flex:1;height:50px;border-radius:4px 4px 8px 8px;border:2px solid rgba(77,166,255,.35);display:flex;align-items:flex-end;cursor:pointer;overflow:hidden;transition:all .2s;background:rgba(77,166,255,.04);}
+.glass:hover{border-color:rgba(77,166,255,.8);transform:translateY(-3px);}
+.glass.filled{border-color:var(--blue);}
+.glass-fill{width:100%;background:linear-gradient(180deg,rgba(77,166,255,.6),rgba(77,166,255,.9));border-radius:0 0 6px 6px;transition:height .4s cubic-bezier(.34,1.56,.64,1);}
+.glass:not(.filled) .glass-fill{height:0%;}
+.glass.filled .glass-fill{height:100%;}
+.w-row{display:flex;align-items:center;justify-content:space-between;}
+.w-cnt{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--blue);}
+.w-goal{font-size:.68rem;color:var(--text3);}
+.w-btn{background:rgba(77,166,255,.15);border:1px solid rgba(77,166,255,.3);color:var(--blue);border-radius:9px;padding:6px 13px;font-size:.72rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.w-btn:hover{background:rgba(77,166,255,.3);}
+.diet-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.diet-row:last-of-type{border-bottom:none;}
+.d-name{flex:1;font-size:.82rem;}
+.d-bar-bg{flex:1;background:var(--bg2);border-radius:999px;height:4px;overflow:hidden;}
+.d-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--green-light));}
+.d-kcal{font-family:'Syne',sans-serif;font-size:.76rem;font-weight:700;color:var(--text2);flex-shrink:0;width:52px;text-align:right;}
+.cal-bar{margin-top:12px;background:var(--bg);border-radius:999px;height:7px;overflow:hidden;border:1px solid var(--border);}
+.cal-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green-light));border-radius:999px;width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.cal-foot{display:flex;justify-content:space-between;margin-top:6px;}
+.cal-foot span{font-size:.68rem;color:var(--text3);}
+.cal-foot .tot{color:var(--green);font-weight:600;font-family:'Syne',sans-serif;}
+.macros{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:12px;}
+.mac{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 7px;text-align:center;}
+.mac-val{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;}
+.mac-lbl{font-size:.6rem;color:var(--text3);margin-top:2px;}
+.mood-opts{display:flex;gap:7px;}
+.mood-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 5px;border-radius:11px;border:1px solid var(--border);background:var(--bg);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.mood-btn:hover{border-color:rgba(29,185,84,.4);transform:translateY(-2px);}
+.mood-btn.selected{border-color:var(--green);background:var(--green-dim);}
+.mood-emoji{font-size:1.35rem;}
+.mood-lbl{font-size:.58rem;color:var(--text3);}
+.mood-res{margin-top:10px;padding:9px 11px;background:var(--bg);border-radius:9px;border:1px solid var(--border);font-size:.76rem;color:var(--text2);display:none;}
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+.bgi{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.bg-wrap{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;position:relative;transition:transform .2s;}
+.bg-wrap:hover{transform:scale(1.1);}
+.bg-wrap.locked{filter:grayscale(1);opacity:.35;}
+.bg-lock{position:absolute;bottom:-4px;right:-4px;background:var(--bg);border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;font-size:.52rem;border:1px solid var(--border);}
+.bg-lbl{font-size:.57rem;color:var(--text3);text-align:center;line-height:1.3;max-width:58px;}
+.pl-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.pl-item:last-child{border-bottom:none;}
+.pl-chk{width:19px;height:19px;border-radius:6px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;font-size:.7rem;}
+.pl-chk.done{background:var(--green);border-color:var(--green);color:#000;}
+.pl-txt{font-size:.78rem;color:var(--text2);}
+.pl-txt.done{text-decoration:line-through;color:var(--text3);}
+.prog-bar{background:var(--bg);border-radius:999px;height:5px;overflow:hidden;border:1px solid var(--border);margin:10px 0 5px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green-light));border-radius:999px;transition:width .5s;}
+.prog-lbl{font-size:.68rem;color:var(--text2);text-align:right;}
+.tip-item{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.tip-item:last-child{border-bottom:none;}
+.tip-ico{width:29px;height:29px;border-radius:8px;background:var(--green-dim);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+.tip-txt{font-size:.78rem;color:var(--text2);line-height:1.45;padding-top:4px;}
+.fr-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.fr-row:last-child{border-bottom:none;}
+.fr-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;}
+.fr-inf{flex:1;}
+.fr-nm{font-size:.8rem;font-weight:600;}
+.fr-act{font-size:.68rem;color:var(--text3);margin-top:1px;}
+.fr-pts{font-family:'Syne',sans-serif;font-size:.76rem;font-weight:700;color:var(--green);}
+.fr-tm{font-size:.62rem;color:var(--text3);}
+.ev-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ev-row:last-child{border-bottom:none;}
+.ev-dt{width:42px;height:46px;background:var(--green-dim);border:1px solid rgba(29,185,84,.3);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.ev-day{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:var(--green);line-height:1;}
+.ev-mon{font-size:.54rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.ev-inf{flex:1;}
+.ev-title{font-size:.8rem;font-weight:600;}
+.ev-sub{font-size:.67rem;color:var(--text3);margin-top:2px;}
+.ev-tag{font-size:.63rem;padding:3px 8px;border-radius:999px;font-weight:700;flex-shrink:0;}
+.tag-g{background:var(--green-dim);color:var(--green);border:1px solid rgba(29,185,84,.25);}
+.tag-y{background:rgba(245,197,24,.12);color:var(--gold);border:1px solid rgba(245,197,24,.25);}
+.tag-p{background:rgba(176,106,255,.12);color:var(--purple);border:1px solid rgba(176,106,255,.25);}
+.m-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+.m-hl{font-size:.56rem;color:var(--text3);text-align:center;}
+.m-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.m-day{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;cursor:default;}
+.md-clean{background:var(--green);color:#000;}
+.md-miss{background:rgba(255,77,77,.22);color:var(--text3);}
+.md-partial{background:rgba(255,149,0,.28);color:var(--text3);}
+.md-future{background:var(--bg2);border:1px solid var(--border);color:var(--text3);}
+.m-leg{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.mli{display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--text3);}
+.mld{width:8px;height:8px;border-radius:3px;}
+.scan-status{font-size:.75rem;color:var(--text2);text-align:center;margin-top:8px;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:9px 20px;font-size:.8rem;color:var(--text);z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
 </head>
-
 <body>
-
-    <div class="container">
-
-        <!-- Profile Section -->
-
-        <div class="profile-card">
-
-            <div>
-                <h2>Naina Jain</h2>
-                <p>🌿 Green Leader - Level 3</p>
-                <p>🔥 Streak: 7 meals | ⭐ 1240 EcoPoints</p>
-            </div>
-
-        </div>
-
-
-        <!-- Snap Button -->
-
-        <div class="snap-section">
-
-            <button class="snap-btn">📷 SNAP CLEAN PLATE</button>
-
-            <p>Breakfast valid till 10:30 AM</p>
-
-        </div>
-
-        <!-- QR Scan Section -->
-
-        <h3>📍 Mess Entry Scan</h3>
-
-        <div class="qr-card">
-
-            <div id="reader"></div>
-
-            <p id="scanStatus">Scan mess QR to mark attendance</p>
-
-        </div>
-
-
-        <!-- Rewards -->
-
-        <h3>🎁 Rewards You Can Redeem</h3>
-
-        <div class="rewards">
-
-            <div class="reward-card">🍨 Ice Cream<br><span>300 pts</span></div>
-
-            <div class="reward-card">☕ Coffee BOGO<br><span>450 pts</span></div>
-
-            <div class="reward-card">📜 Certificate<br><span>2000 pts</span></div>
-
-            <div class="reward-card">❤️ Donate Meal<br><span>150 pts</span></div>
-
-        </div>
-
-
-        <!-- Impact -->
-
-        <div class="impact-card">
-
-            <h3>Your Impact This Week</h3>
-
-            <p>🥗 Prevented <b>2.3 kg</b> food waste</p>
-
-            <p>💰 Saved mess <b>₹180</b></p>
-
-            <p>🏆 Rank: <b>#12 in Hostel</b></p>
-
-        </div>
-
-
-        <!-- Streak -->
-
-        <h3>🔥 Your Streak</h3>
-
-        <div class="streak">
-
-            <div class="day done">Mon</div>
-
-            <div class="day done">Tue</div>
-
-            <div class="day done">Wed</div>
-
-            <div class="day miss">Thu</div>
-
-            <div class="day done">Fri</div>
-
-        </div>
-
-
-        <!-- Leaderboard -->
-
-        <h3>🏅 Today's Leaderboard</h3>
-
-        <div class="leaderboard">
-
-            <div>1. Aarav - 180 pts</div>
-
-            <div>2. Meera - 150 pts</div>
-
-            <div>3. Rohan - 130 pts</div>
-
-            <div>4. You - 120 pts</div>
-
-        </div>
-
-
-        <!-- Dietary Summary -->
-
-        <h3>🥗 Today’s Dietary Summary</h3>
-
-        <div class="diet-card">
-
-            <p>🍛 Paneer Curry – 320 kcal</p>
-
-            <p>🍚 Rice – 210 kcal</p>
-
-            <p>🥖 Roti – 110 kcal</p>
-
-            <p>🥣 Dal – 180 kcal</p>
-
-            <hr>
-
-            <p><b>Total Calories: 820 kcal</b></p>
-
-        </div>
-
-
-        <!-- Dietary Suggestions -->
-
-        <h3>💡 Dietary Suggestions</h3>
-
-        <div class="suggestion-card">
-
-            <ul>
-
-                <li>🥒 Add a bowl of salad for more fiber</li>
-
-                <li>🍎 Have a fruit in the evening</li>
-
-                <li>💧 Drink 2 extra glasses of water</li>
-
-                <li>🚶 Light 15 min walk recommended</li>
-
-            </ul>
-
-        </div>
-
-
-        <button class="redeem-btn">Redeem EcoPoints</button>
-
-        <p class="footer-note">
-            Works only inside mess during meal hours 📍
-        </p>
-
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<nav class="sidebar">
+  <div class="sb-logo"><div class="logo">Plate<span>Zero</span></div><div class="logo-sub">Student Dashboard</div></div>
+  <div class="sb-profile">
+    <div class="sb-av" id="sbAv">NJ</div>
+    <div><div class="sb-name" id="sbName">Naina Jain</div><div class="sb-badge">🌿 Green Leader · Lvl 3</div></div>
+  </div>
+  <div class="sb-nav">
+    <div class="nav-grp">Main</div>
+    <a class="nav-item active" data-section="Dashboard"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a class="nav-item" data-section="Snap Plate"><span class="nav-icon">📷</span>Snap Plate</a>
+    <a class="nav-item" data-section="QR Scan"><span class="nav-icon">📍</span>QR Scan</a>
+    <div class="nav-grp">Activity</div>
+    <a class="nav-item" data-section="Streak"><span class="nav-icon">🔥</span>Streak</a>
+    <a class="nav-item" data-section="Leaderboard"><span class="nav-icon">🏅</span>Leaderboard</a>
+    <a class="nav-item" data-section="Rewards"><span class="nav-icon">🎁</span>Rewards</a>
+    <a class="nav-item" data-section="Badges"><span class="nav-icon">🏆</span>Badges</a>
+    <div class="nav-grp">Health</div>
+    <a class="nav-item" data-section="Nutrition"><span class="nav-icon">🥗</span>Nutrition</a>
+    <a class="nav-item" data-section="Hydration"><span class="nav-icon">💧</span>Hydration</a>
+    <a class="nav-item" data-section="Mood Log"><span class="nav-icon">😊</span>Mood Log</a>
+    <div class="nav-grp">Social</div>
+    <a class="nav-item" data-section="Friends"><span class="nav-icon">👥</span>Friends<span class="nav-pill">3</span></a>
+    <a class="nav-item" data-section="Events"><span class="nav-icon">🗓️</span>Events</a>
+    <a class="nav-item" data-section="Eco Pledge"><span class="nav-icon">🌱</span>Eco Pledge</a>
+  </div>
+  <div class="sb-foot">
+    <button class="logout-btn" onclick="handleLogout()"><span>🚪</span>Log Out</button>
+  </div>
+</nav>
+<header class="topbar">
+  <div style="display:flex;align-items:baseline;gap:0">
+    <span class="tb-title">Good afternoon 👋</span>
+    <span class="tb-date" id="topDate"></span>
+  </div>
+  <div class="tb-right">
+    <div class="pts-chip">⭐ <span id="ptsBadge">1240</span> pts</div>
+    <div class="icon-btn" onclick="showToast('🔔 3 new notifications')">🔔<div class="n-dot"></div></div>
+    <div class="icon-btn" onclick="showToast('⚙️ Settings coming soon!')">⚙️</div>
+  </div>
+</header>
+<main class="main"><div class="content">
+<div class="kpi-strip">
+  <div class="kpi" style="animation-delay:.05s"><div class="kpi-ico">⭐</div><div><div class="kpi-val" id="ecoPoints" style="color:var(--green)">1240</div><div class="kpi-lbl">EcoPoints</div><div class="kpi-tr up">↑ +30 today</div></div></div>
+  <div class="kpi" style="animation-delay:.1s"><div class="kpi-ico">🔥</div><div><div class="kpi-val" style="color:var(--amber)">7</div><div class="kpi-lbl">Day Streak</div><div class="kpi-tr up">↑ Best: 14</div></div></div>
+  <div class="kpi" style="animation-delay:.15s"><div class="kpi-ico">🏅</div><div><div class="kpi-val" style="color:var(--gold)">#12</div><div class="kpi-lbl">Hostel Rank</div><div class="kpi-tr up">↑ +3 this week</div></div></div>
+  <div class="kpi" style="animation-delay:.2s"><div class="kpi-ico">🍽️</div><div><div class="kpi-val" style="color:var(--blue)">21</div><div class="kpi-lbl">Clean Meals</div><div class="kpi-tr up">↑ This month</div></div></div>
+  <div class="kpi" style="animation-delay:.25s"><div class="kpi-ico">♻️</div><div><div class="kpi-val" style="color:var(--purple)">2.3kg</div><div class="kpi-lbl">Waste Saved</div><div class="kpi-tr up">↑ This week</div></div></div>
+</div>
+<div style="display:grid;grid-template-columns:1.5fr 1fr 1.4fr;gap:18px;margin-bottom:18px">
+  <div class="profile-card">
+    <div class="ptop">
+      <div class="av-lg" id="avatarEl">NJ</div>
+      <div><div class="p-name" id="profileName">Naina Jain</div><div class="p-badge">🌿 Green Leader · Level 3</div></div>
     </div>
+    <div class="p-stats">
+      <div class="ps"><div class="ps-val" id="psEco">1240</div><div class="ps-lbl">EcoPoints</div></div>
+      <div class="ps"><div class="ps-val">🔥 7</div><div class="ps-lbl">Streak</div></div>
+      <div class="ps"><div class="ps-val">#12</div><div class="ps-lbl">Rank</div></div>
+      <div class="ps"><div class="ps-val">6</div><div class="ps-lbl">Badges</div></div>
+    </div>
+  </div>
+    <div id="snapCard" class="snap-card">
+    <div class="snap-lbl">📷 Clean Plate Snap</div>
+    <div class="snap-sub" id="snapSub">Checking meal window…</div>
+    <div class="snap-cd" id="countdown">⏰ calculating…</div>
+    <button class="snap-btn" onclick="handleSnap()">📷 SNAP NOW</button>
+    <div class="snap-slots">
+      <div class="snap-slot done">✅ Breakfast</div>
+      <div class="snap-slot">⏳ Lunch</div>
+      <div class="snap-slot">⏳ Dinner</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">🍽️ Today's Mess Schedule</div><a class="cl">Menu →</a></div>
+    <div class="meal-slot"><div class="m-ico">🌅</div><div class="m-info"><div class="m-name">Breakfast</div><div class="m-time">7:30 – 10:30 AM</div><div class="m-items">Idli, Sambar, Coconut Chutney</div></div><div class="m-tag mt-done">✅ Done</div></div>
+    <div class="meal-slot now"><div class="m-ico">☀️</div><div class="m-info"><div class="m-name">Lunch</div><div class="m-time">12:30 – 2:30 PM</div><div class="m-items">Rice, Dal, Paneer Curry, Salad</div></div><div class="m-tag mt-open">🟡 Open Now</div></div>
+    <div class="meal-slot"><div class="m-ico">🌙</div><div class="m-info"><div class="m-name">Dinner</div><div class="m-time">7:30 – 9:30 PM</div><div class="m-items">Roti, Sabzi, Curd, Sweet</div></div><div class="m-tag mt-soon">⏳ Later</div></div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1.8fr 1fr 1.2fr;gap:18px;margin-bottom:18px">
+  <div id="streakCard" class="card">
+    <div class="ch"><div class="ct">🔥 Clean Plate Streak <span style="color:var(--amber);margin-left:5px">7 days</span></div></div>
+    <div class="streak-days" id="streakDays" style="margin-bottom:5px"></div>
+    <div style="font-size:.75rem;color:var(--text2);margin-top:8px">Snap a clean plate today to extend your streak! 🎯</div>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,var(--bg3),var(--surface))">
+    <div class="ch"><div class="ct">🌍 Weekly Impact</div></div>
+    <div class="impact-grid" id="impactGrid">
+      <div class="imp"><div class="imp-val" id="impactWaste">--kg</div><div class="imp-lbl">Waste prevented</div></div>
+      <div class="imp"><div class="imp-val" id="impactSavings">₹--</div><div class="imp-lbl">Mess savings</div></div>
+      <div class="imp"><div class="imp-val" id="impactWater">--L</div><div class="imp-lbl">Water saved</div></div>
+      <div class="imp"><div class="imp-val" id="impactCO2">--kg</div><div class="imp-lbl">CO₂ reduced</div></div>
+    </div>
+  </div>
+    <div id="qrCard" class="card">
+    <div class="ch"><div class="ct">📍 Mess QR Scan <span class="live-dot"></span></div></div>
+    <div id="reader" style="width:100%;height:180px;overflow:hidden;border-radius:10px;background:#000;"></div>
+    <div class="scan-status" id="scanStatus">📷 Point camera at mess QR</div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:18px">
+  <div id="nutCard" class="card">
+    <div class="ch"><div class="ct">📊 Weekly Nutrition</div><a class="cl">Details →</a></div>
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#1db954"></div>Carbs</div>
+      <div class="leg"><div class="leg-dot" style="background:#4da6ff"></div>Protein</div>
+      <div class="leg"><div class="leg-dot" style="background:#ff9500"></div>Fat</div>
+    </div>
+    <div class="bar-chart" id="nutChart"></div>
+    <div class="nut-sum">
+      <div class="nut"><div class="nut-val" style="color:var(--green)">248g</div><div class="nut-lbl">Avg Carbs/day</div></div>
+      <div class="nut"><div class="nut-val" style="color:var(--blue)">62g</div><div class="nut-lbl">Avg Protein/day</div></div>
+      <div class="nut"><div class="nut-val" style="color:var(--amber)">48g</div><div class="nut-lbl">Avg Fat/day</div></div>
+    </div>
+  </div>
+  <div id="lbCard" class="card">
+    <div class="ch"><div class="ct">🏅 Today's Leaderboard</div><a class="cl">See all →</a></div>
+    <div id="leaderboardList">
+      <div style="text-align:center;padding:20px;color:var(--text3)">Loading standings...</div>
+    </div>
+  </div>
+</div>
+  <div id="rewardsCard" class="card" style="margin-bottom:18px">
+  <div class="ch"><div class="ct">🎁 Redeem EcoPoints</div><span style="font-size:.7rem;color:var(--text3)" id="ptsDisplay">1240 pts available</span></div>
+  <div class="rewards-grid">
+    <div class="rw"><div class="r-ico">🍨</div><div class="r-nm">Ice Cream</div><div class="r-pts">300 pts</div><button class="r-btn" onclick="redeemReward(this,'Ice Cream',300)">Redeem</button></div>
+    <div class="rw"><div class="r-ico">☕</div><div class="r-nm">Coffee BOGO</div><div class="r-pts">450 pts</div><button class="r-btn" onclick="redeemReward(this,'Coffee BOGO',450)">Redeem</button></div>
+    <div class="rw"><div class="r-ico">📜</div><div class="r-nm">Certificate</div><div class="r-pts">2000 pts</div><button class="r-btn" onclick="redeemReward(this,'Certificate',2000)" disabled>Need more</button></div>
+    <div class="rw"><div class="r-ico">❤️</div><div class="r-nm">Donate Meal</div><div class="r-pts">150 pts</div><button class="r-btn" onclick="redeemReward(this,'Donate Meal',150)">Redeem</button></div>
+    <div class="rw"><div class="r-ico">🧃</div><div class="r-nm">Juice Pack</div><div class="r-pts">200 pts</div><button class="r-btn" onclick="redeemReward(this,'Juice Pack',200)">Redeem</button></div>
+    <div class="rw"><div class="r-ico">🎫</div><div class="r-nm">Movie Pass</div><div class="r-pts">800 pts</div><button class="r-btn" onclick="redeemReward(this,'Movie Pass',800)">Redeem</button></div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:18px;margin-bottom:18px">
+  <div id="waterCard" class="card">
+    <div class="ch"><div class="ct">💧 Water Intake</div></div>
+    <div style="font-size:.72rem;color:var(--text3);margin-bottom:10px">Goal: 8 glasses / day. Tap to log.</div>
+    <div class="water-row-glasses" id="waterGlasses"></div>
+    <div class="w-row">
+      <div><div class="w-cnt"><span id="waterCount">5</span> / 8</div><div class="w-goal">3 more glasses to go!</div></div>
+      <button class="w-btn" onclick="addWater()">+ Glass</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">🥗 Today's Nutrition</div></div>
+    <div class="diet-row"><div class="d-name">🍛 Paneer Curry</div><div class="d-bar-bg"><div class="d-bar-fill" style="width:75%"></div></div><div class="d-kcal">320 kcal</div></div>
+    <div class="diet-row"><div class="d-name">🍚 Rice</div><div class="d-bar-bg"><div class="d-bar-fill" style="width:50%"></div></div><div class="d-kcal">210 kcal</div></div>
+    <div class="diet-row"><div class="d-name">🥖 Roti</div><div class="d-bar-bg"><div class="d-bar-fill" style="width:26%"></div></div><div class="d-kcal">110 kcal</div></div>
+    <div class="diet-row"><div class="d-name">🥣 Dal</div><div class="d-bar-bg"><div class="d-bar-fill" style="width:42%"></div></div><div class="d-kcal">180 kcal</div></div>
+    <div class="cal-bar"><div class="cal-fill" id="calFill"></div></div>
+    <div class="cal-foot"><span>0</span><span class="tot">820 / 2000 kcal</span><span>2000</span></div>
+    <div class="macros">
+      <div class="mac"><div class="mac-val" style="color:var(--green)">108g</div><div class="mac-lbl">Carbs</div></div>
+      <div class="mac"><div class="mac-val" style="color:var(--blue)">34g</div><div class="mac-lbl">Protein</div></div>
+      <div class="mac"><div class="mac-val" style="color:var(--amber)">22g</div><div class="mac-lbl">Fats</div></div>
+    </div>
+  </div>
+  <div id="moodCard" class="card">
+    <div class="ch"><div class="ct">😊 Mood Check-in</div></div>
+    <div style="font-size:.76rem;color:var(--text2);margin-bottom:12px">How are you feeling today?</div>
+    <div class="mood-opts">
+      <button class="mood-btn" onclick="selectMood(this,'😄','Energetic')"><span class="mood-emoji">😄</span><span class="mood-lbl">Energetic</span></button>
+      <button class="mood-btn" onclick="selectMood(this,'😊','Happy')"><span class="mood-emoji">😊</span><span class="mood-lbl">Happy</span></button>
+      <button class="mood-btn" onclick="selectMood(this,'😐','Okay')"><span class="mood-emoji">😐</span><span class="mood-lbl">Okay</span></button>
+      <button class="mood-btn" onclick="selectMood(this,'😴','Tired')"><span class="mood-emoji">😴</span><span class="mood-lbl">Tired</span></button>
+      <button class="mood-btn" onclick="selectMood(this,'🤢','Unwell')"><span class="mood-emoji">🤢</span><span class="mood-lbl">Unwell</span></button>
+    </div>
+    <div class="mood-res" id="moodResult"></div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px">
+  <div id="badgesCard" class="card">
+    <div class="ch"><div class="ct">🏆 Eco Badges</div><a class="cl">All →</a></div>
+    <div style="font-size:.7rem;color:var(--text3);margin-bottom:10px">6 of 12 earned</div>
+    <div class="badges-grid">
+      <div class="bgi"><div class="bg-wrap" style="background:linear-gradient(135deg,rgba(245,197,24,.2),rgba(245,197,24,.05));border:1px solid rgba(245,197,24,.3)">🌟</div><div class="bg-lbl">First Snap</div></div>
+      <div class="bgi"><div class="bg-wrap" style="background:linear-gradient(135deg,rgba(29,185,84,.2),rgba(29,185,84,.05));border:1px solid rgba(29,185,84,.3)">🔥</div><div class="bg-lbl">7-Day Streak</div></div>
+      <div class="bgi"><div class="bg-wrap" style="background:linear-gradient(135deg,rgba(77,166,255,.2),rgba(77,166,255,.05));border:1px solid rgba(77,166,255,.3)">💧</div><div class="bg-lbl">Hydration Hero</div></div>
+      <div class="bgi"><div class="bg-wrap" style="background:linear-gradient(135deg,rgba(176,106,255,.2),rgba(176,106,255,.05));border:1px solid rgba(176,106,255,.3)">🌱</div><div class="bg-lbl">Eco Starter</div></div>
+      <div class="bgi"><div class="bg-wrap" style="background:linear-gradient(135deg,rgba(255,149,0,.2),rgba(255,149,0,.05));border:1px solid rgba(255,149,0,.3)">♻️</div><div class="bg-lbl">Zero Waste</div></div>
+      <div class="bgi"><div class="bg-wrap" style="background:linear-gradient(135deg,rgba(29,185,84,.2),rgba(29,185,84,.05));border:1px solid rgba(29,185,84,.3)">🏅</div><div class="bg-lbl">Top 15</div></div>
+      <div class="bgi"><div class="bg-wrap locked" style="background:var(--bg);border:1px solid var(--border)">🌍<div class="bg-lock">🔒</div></div><div class="bg-lbl">Planet Saver</div></div>
+      <div class="bgi"><div class="bg-wrap locked" style="background:var(--bg);border:1px solid var(--border)">👑<div class="bg-lock">🔒</div></div><div class="bg-lbl">Mess Legend</div></div>
+    </div>
+  </div>
+  <div id="pledgeCard" class="card" style="background:linear-gradient(135deg,rgba(29,185,84,.1),rgba(29,185,84,.03));border-color:rgba(29,185,84,.28)">
+    <div class="ch"><div class="ct">🌱 Today's Eco Pledge</div></div>
+    <div style="font-size:.73rem;color:var(--text2);margin-bottom:12px">Complete your pledge for +20 bonus EcoPoints</div>
+    <div class="pledge-card" style="cursor:pointer;padding:15px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;gap:12px;" onclick="changePledge()">
+      <div class="p-icon" style="font-size:1.5rem">🍃</div>
+      <div class="p-text" id="pledgeText" style="font-size:0.85rem;color:var(--text2);font-style:italic">"I will avoid plastic cutlery today."</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">💡 Dietary Tips</div></div>
+    <div class="tip-item"><div class="tip-ico">🥒</div><div class="tip-txt">Add a bowl of salad for more fiber — great for digestion!</div></div>
+    <div class="tip-item"><div class="tip-ico">🍎</div><div class="tip-txt">Have a fruit in the evening to keep energy levels up.</div></div>
+    <div class="tip-item"><div class="tip-ico">💧</div><div class="tip-txt">Drink 2 extra glasses of water — you're a bit low today.</div></div>
+    <div class="tip-item"><div class="tip-ico">🚶</div><div class="tip-txt">A 15-min walk after dinner aids digestion and earns 5 pts!</div></div>
+    <div class="tip-item"><div class="tip-ico">🥜</div><div class="tip-txt">Include a protein snack to hit your daily target.</div></div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px">
+  <div id="friendsCard" class="card">
+    <div class="ch"><div class="ct">👥 Friends Activity</div><a class="cl">Add →</a></div>
+    <div class="fr-row"><div class="fr-av" style="background:linear-gradient(135deg,#f5c518,#e08a00)">A</div><div class="fr-inf"><div class="fr-nm">Aarav Sharma</div><div class="fr-act">🍽️ Snapped clean plate at Lunch</div></div><div style="text-align:right"><div class="fr-pts">+30</div><div class="fr-tm">2m ago</div></div></div>
+    <div class="fr-row"><div class="fr-av" style="background:linear-gradient(135deg,#6c4fe0,#3d2a8a)">P</div><div class="fr-inf"><div class="fr-nm">Priya Mehta</div><div class="fr-act">🏅 Earned "7-Day Streak" badge</div></div><div style="text-align:right"><div class="fr-pts">+50</div><div class="fr-tm">15m</div></div></div>
+    <div class="fr-row"><div class="fr-av" style="background:linear-gradient(135deg,#ff9500,#cc6600)">K</div><div class="fr-inf"><div class="fr-nm">Karan Patel</div><div class="fr-act">♻️ Redeemed Coffee BOGO</div></div><div style="text-align:right"><div class="fr-pts" style="color:var(--red)">-450</div><div class="fr-tm">1h</div></div></div>
+    <div class="fr-row"><div class="fr-av" style="background:linear-gradient(135deg,#4da6ff,#0055aa)">S</div><div class="fr-inf"><div class="fr-nm">Sneha Iyer</div><div class="fr-act">🌱 Donated a meal to charity</div></div><div style="text-align:right"><div class="fr-pts">+20</div><div class="fr-tm">3h</div></div></div>
+  </div>
+  <div id="eventsCard" class="card">
+    <div class="ch"><div class="ct">🗓️ Upcoming Events</div></div>
+    <div class="ev-row"><div class="ev-dt"><div class="ev-day">14</div><div class="ev-mon">Mar</div></div><div class="ev-inf"><div class="ev-title">Zero Waste Challenge Week</div><div class="ev-sub">Earn 3× points for clean plates</div></div><div class="ev-tag tag-g">Challenge</div></div>
+    <div class="ev-row"><div class="ev-dt"><div class="ev-day">18</div><div class="ev-mon">Mar</div></div><div class="ev-inf"><div class="ev-title">Hostel EcoPoints Battle</div><div class="ev-sub">Compete vs Block B &amp; C</div></div><div class="ev-tag tag-y">Compete</div></div>
+    <div class="ev-row"><div class="ev-dt"><div class="ev-day">22</div><div class="ev-mon">Mar</div></div><div class="ev-inf"><div class="ev-title">World Water Day Drive</div><div class="ev-sub">Log 10 glasses → +100 bonus pts</div></div><div class="ev-tag tag-p">Special</div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">📅 March Clean Log</div></div>
+    <div class="m-hdr"><div class="m-hl">Su</div><div class="m-hl">Mo</div><div class="m-hl">Tu</div><div class="m-hl">We</div><div class="m-hl">Th</div><div class="m-hl">Fr</div><div class="m-hl">Sa</div></div>
+    <div class="m-grid" id="monthGrid"></div>
+    <div class="m-leg">
+      <div class="mli"><div class="mld" style="background:var(--green)"></div>Clean</div>
+      <div class="mli"><div class="mld" style="background:rgba(255,149,0,.5)"></div>Partial</div>
+      <div class="mli"><div class="mld" style="background:rgba(255,77,77,.35)"></div>Missed</div>
+    </div>
+  </div>
+</div>
+</div></main>
+<div class="toast" id="toast"></div>
+<input type="file" id="snapInput" accept="image/*" capture="environment" style="display:none" onchange="submitSnap(this)">
+<script>
+  // ── AUTH GUARD ──
+  var studentId = localStorage.getItem('student_id');
+  var studentRole = localStorage.getItem('student_role');
+  if (!studentId || studentRole === 'admin') { window.location.href = 'login.html'; }
 
+  var ecoPoints = 1240;
 
-
-
-    <script src="https://unpkg.com/html5-qrcode"></script>
-
-    <script>
-        // Auth check
-        if (!localStorage.getItem("student_id") || localStorage.getItem("student_role") !== "student") {
-            window.location.href = "login.html";
+  document.addEventListener('DOMContentLoaded',function(){
+    var name=localStorage.getItem('student_name');
+    if(name){
+      document.getElementById('profileName').textContent=name;
+      document.getElementById('sbName').textContent=name;
+      var ini=name.split(' ').map(function(n){return n[0];}).join('').toUpperCase().slice(0,2);
+      ['avatarEl','sbAv'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=ini;});
+    }
+    var now=new Date();
+    document.getElementById('topDate').textContent=' \u00b7 '+now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    // Dynamic greeting
+    var hr=now.getHours();
+    var greet=hr<12?'Good morning':(hr<17?'Good afternoon':'Good evening');
+    document.querySelector('.tb-title').textContent=greet+' \ud83d\udc4b';
+    setTimeout(function(){document.getElementById('calFill').style.width='41%';},600);
+    updateCountdown(); setInterval(updateCountdown,1000);
+    buildWaterGlasses(); buildNutChart();
+    updateMealSchedule();
+    fetchLiveData();
+    fetchLeaderboard();
+    fetchHistory();
+    fetchImpact();
+    fetchWellness();
+    restoreState();
+    // Sidebar click behavior: active highlight + focus section
+    var sectionMap={
+      'Dashboard':null,
+      'Snap Plate':'snapCard',
+      'QR Scan':'qrCard',
+      'Streak':'streakCard',
+      'Leaderboard':'lbCard',
+      'Rewards':'rewardsCard',
+      'Badges':'badgesCard',
+      'Nutrition':'nutCard',
+      'Hydration':'waterCard',
+      'Mood Log':'moodCard',
+      'Friends':'friendsCard',
+      'Events':'eventsCard',
+      'Eco Pledge':'pledgeCard'
+    };
+    function focusSection(id){
+      document.querySelectorAll('.focus-section').forEach(function(el){el.classList.remove('focus-section');});
+      var t=document.getElementById(id);
+      if(!t) return;
+      t.classList.add('focus-section');
+      t.scrollIntoView({behavior:'smooth',block:'start'});
+      setTimeout(function(){t.classList.remove('focus-section');},1400);
+    }
+    document.querySelectorAll('.nav-item').forEach(function(el){
+      el.addEventListener('click',function(){
+        document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+        el.classList.add('active');
+        var sectionKey=el.getAttribute('data-section')||el.textContent.trim();
+        var targetId=sectionMap[sectionKey];
+        if(targetId){focusSection(targetId);} else if(sectionKey === 'Dashboard'){
+          window.scrollTo({top:0,behavior:'smooth'});
         }
+      });
+    });
+  });
 
-        // Update name from auth
-        document.addEventListener("DOMContentLoaded", () => {
-            const nameEl = document.querySelector(".profile-card h2");
-            if (nameEl && localStorage.getItem("student_name")) {
-                nameEl.innerText = localStorage.getItem("student_name") + " (Logout)";
-                nameEl.style.cursor = "pointer";
-                nameEl.onclick = () => {
-                    localStorage.removeItem("student_id");
-                    localStorage.removeItem("student_name");
-                    localStorage.removeItem("student_role");
-                    window.location.href = "login.html";
-                };
-            }
+  function handleLogout(){
+    ['student_id','student_name','student_role','eco_points','water_filled','mood_today','pledge_state'].forEach(function(k){localStorage.removeItem(k);});
+    window.location.href='login.html';
+  }
+
+  function fetchLiveData(){
+    var sid=localStorage.getItem('student_id');
+    fetch('http://127.0.0.1:8000/student/'+sid)
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.eco_points!=null){ecoPoints=d.eco_points;updatePointsUI();}
+        if(d.streak!=null){document.querySelectorAll('.kpi-val')[1].textContent=d.streak;}
+        if(d.rank!=null){document.querySelectorAll('.kpi-val')[2].textContent='#'+d.rank;}
+        if(d.clean_meals!=null){document.querySelectorAll('.kpi-val')[3].textContent=d.clean_meals;}
+      }).catch(function(){/* use defaults */});
+  }
+
+  function fetchLeaderboard(){
+    fetch('http://127.0.0.1:8000/api/leaderboard')
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var list=document.getElementById('leaderboardList');
+        var sid=localStorage.getItem('student_id');
+        var maxPts=data.length>0?data[0].points:1;
+        list.innerHTML=data.map(function(s){
+          var isYou=s.id==sid;
+          var rkClass=s.rank===1?'gold':s.rank===2?'silver':s.rank===3?'bronze':'';
+          var pct=Math.round((s.points/maxPts)*100);
+          return '<div class="lb-row '+(isYou?'you':'')+'">'+
+            '<div class="lb-rk '+rkClass+'">'+s.rank+'</div>'+
+            '<div class="lb-av" style="background:linear-gradient(135deg,'+(isYou?'var(--green),#0a7d2e':'#6c4fe0,#3d2a8a')+')">'+s.name[0]+'</div>'+
+            '<div class="lb-nm" '+(isYou?'style="color:var(--green);font-weight:600"':'')+'>'+(isYou?s.name+' 🎯':s.name)+'</div>'+
+            '<div class="lb-bar-w"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:'+pct+'%"></div></div></div>'+
+            '<div style="text-align:right"><div class="lb-pts">'+s.points+'</div><div class="lb-sub">pts</div></div>'+
+          '</div>';
+        }).join('');
+      });
+  }
+
+  function fetchHistory(){
+    var sid=localStorage.getItem('student_id');
+    fetch('http://127.0.0.1:8000/student/'+sid+'/history')
+      .then(function(r){return r.json();})
+      .then(function(data){
+        buildMonthGrid(data);
+        buildStreakRow(data);
+      });
+  }
+
+  function fetchImpact(){
+    var sid=localStorage.getItem('student_id');
+    fetch('http://127.0.0.1:8000/student/'+sid+'/impact')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        document.getElementById('impactWaste').textContent=d.waste_prevented;
+        document.getElementById('impactSavings').textContent=d.mess_savings;
+        document.getElementById('impactWater').textContent=d.water_saved;
+        document.getElementById('impactCO2').textContent=d.co2_reduced;
+        // Also update KPI at top (Waste Saved)
+        document.querySelectorAll('.kpi-val')[4].textContent=d.waste_prevented;
+      });
+  }
+
+  function fetchWellness(){
+    var sid=localStorage.getItem('student_id');
+    fetch('http://127.0.0.1:8000/student/'+sid+'/wellness')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        waterFilled = d.hydration || 0;
+        buildWaterGlasses();
+        if(d.mood) setMoodUI(d.mood);
+        if(d.eco_pledge) document.getElementById('pledgeText').textContent = d.eco_pledge;
+        else document.getElementById('pledgeText').textContent = "Tap to set a pledge!";
+      });
+  }
+
+  function setMoodUI(m){
+    mood = m;
+    document.querySelectorAll('.mood-emoji').forEach(function(el){
+        el.style.transform = el.getAttribute('data-m')===m ? 'scale(1.3)' : 'scale(1)';
+        el.style.filter = el.getAttribute('data-m')===m ? 'grayscale(0)' : 'grayscale(1)';
+    });
+  }
+
+  function saveWellness(patch){
+    var sid=localStorage.getItem('student_id');
+    var body = Object.assign({student_id: sid}, patch);
+    fetch('http://127.0.0.1:8000/student/wellness',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(body)
+    });
+  }
+
+  function restoreState(){
+    // Restore eco points from localStorage
+    var saved=parseInt(localStorage.getItem('eco_points'));
+    if(!isNaN(saved)){ecoPoints=saved;updatePointsUI();}
+    // Restore water
+    var w=parseInt(localStorage.getItem('water_filled'));
+    if(!isNaN(w)&&w>=0&&w<=8){waterFilled=w;buildWaterGlasses();document.getElementById('waterCount').textContent=waterFilled;}
+    // Restore mood
+    var mood=localStorage.getItem('mood_today');
+    if(mood){document.querySelectorAll('.mood-btn').forEach(function(b){if(b.textContent.indexOf(mood)!==-1){b.classList.add('selected');}});}
+  }
+
+  function updateMealSchedule(){
+    var hr=new Date().getHours();
+    var slots=document.querySelectorAll('.meal-slot');
+    slots.forEach(function(s){s.classList.remove('now');});
+    var tags=document.querySelectorAll('.m-tag');
+    if(hr>=7&&hr<11){slots[0].classList.add('now');tags[0].className='m-tag mt-open';tags[0].textContent='🟡 Open Now';tags[1].className='m-tag mt-soon';tags[1].textContent='⏳ Later';}
+    else if(hr>=12&&hr<15){slots[1].classList.add('now');tags[0].className='m-tag mt-done';tags[0].textContent='✅ Done';tags[1].className='m-tag mt-open';tags[1].textContent='🟡 Open Now';tags[2].className='m-tag mt-soon';tags[2].textContent='⏳ Later';}
+    else if(hr>=19&&hr<22){slots[2].classList.add('now');tags[0].className='m-tag mt-done';tags[0].textContent='✅ Done';tags[1].className='m-tag mt-done';tags[1].textContent='✅ Done';tags[2].className='m-tag mt-open';tags[2].textContent='🟡 Open Now';}
+    else if(hr>=11&&hr<12){tags[0].className='m-tag mt-done';tags[0].textContent='✅ Done';tags[1].className='m-tag mt-soon';tags[1].textContent='⏳ Soon';}
+  }
+
+  function updateCountdown(){
+    var now=new Date();
+    var nowMin=now.getHours()*60+now.getMinutes();
+    var windows=[
+      {name:'Breakfast',startH:7, endH:10,endM:30},
+      {name:'Lunch',    startH:12,endH:14,endM:30},
+      {name:'Dinner',  startH:19,endH:21,endM:30}
+    ];
+    var active=null;
+    for(var i=0;i<windows.length;i++){
+      var w=windows[i];
+      if(nowMin>=w.startH*60 && nowMin<w.endH*60+w.endM){active=w;break;}
+    }
+    var subEl=document.getElementById('snapSub');
+    var cdEl=document.getElementById('countdown');
+    if(!active){
+      var hr=now.getHours();
+      if(subEl)subEl.textContent='No active meal window';
+      cdEl.textContent='Next: '+(hr<7?'Breakfast at 7:30 AM':hr<12?'Lunch at 12:30 PM':hr<19?'Dinner at 7:30 PM':'Breakfast tomorrow');
+      return;
+    }
+    if(subEl)subEl.textContent=active.name+' valid till';
+    var close=new Date();close.setHours(active.endH,active.endM,0,0);
+    var diff=close-now;
+    var h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    cdEl.textContent=h>0?'⏰ '+h+'h '+m+'m left':'⏰ '+m+'m '+s+'s left';
+  }
+
+  function handleSnap(){
+    document.getElementById('snapInput').click();
+  }
+
+  function submitSnap(input){
+    if(!input.files||!input.files[0])return;
+    var file=input.files[0];
+    var mealSlots=['Breakfast','Lunch','Dinner'];
+    var hr=new Date().getHours();
+    var meal=hr<11?'breakfast':hr<16?'lunch':'dinner';
+    showToast('📸 Uploading '+meal+' snap…');
+
+    function doUpload(lat, lon){
+      var fd=new FormData();
+      fd.append('image',file);
+      fd.append('student_id',localStorage.getItem('student_id')||'demo');
+      fd.append('meal',meal);
+      if(lat!=null) fd.append('lat', lat);
+      if(lon!=null) fd.append('lon', lon);
+
+      fetch('http://127.0.0.1:8000/snap_plate',{method:'POST',body:fd})
+        .then(function(r){
+          if(!r.ok) throw new Error('HTTP '+r.status);
+          return r.json();
+        })
+        .then(function(data){
+          if(data.status==='fraud'){
+            showToast('🚫 '+data.reason);
+          } else if(data.status==='error'){
+            showToast('⚠️ '+(data.reason||'Could not process snap. Try again.'));
+          } else if(data.status==='success'||data.clean){
+            ecoPoints+=30;
+            updatePointsUI();
+            showToast('✅ Clean plate verified! +30 EcoPoints');
+            var idx=meal==='breakfast'?0:meal==='lunch'?1:2;
+            var slots=document.querySelectorAll('.snap-slot');
+            if(slots[idx]){slots[idx].className='snap-slot done';slots[idx].textContent='✅ '+mealSlots[idx];}
+            fetchHistory(); fetchImpact(); fetchLiveData(); fetchLeaderboard();
+          } else {
+            showToast('⚠️ Plate not fully clean ('+data.prediction+') — try again!');
+          }
+        })
+        .catch(function(err){
+          showToast('❌ Cannot reach server. Is the backend running?');
+          console.error('Snap error:',err);
         });
+      input.value='';
+    }
 
-        let lastScanned = null;
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        function(pos){ doUpload(pos.coords.latitude, pos.coords.longitude); },
+        function(){    doUpload(null, null); },
+        {timeout:5000}
+      );
+    } else {
+      doUpload(null, null);
+    }
+  }
 
-        function onScanSuccess(decodedText) {
+  function updatePointsUI(){
+    ['ecoPoints','ptsBadge','psEco'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=ecoPoints;});
+    var pd=document.getElementById('ptsDisplay');if(pd)pd.textContent=ecoPoints+' pts available';
+    localStorage.setItem('eco_points',ecoPoints);
+  }
+  function redeemReward(btn,name,cost){
+    if(ecoPoints<cost){showToast('❌ Need '+(cost-ecoPoints)+' more pts for '+name);return;}
+    // Try backend first
+    fetch('http://127.0.0.1:8000/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:localStorage.getItem('student_id'),reward:name,cost:cost})})
+      .catch(function(){});
+    ecoPoints-=cost;
+    updatePointsUI();
+    btn.textContent='✅ Done!';btn.disabled=true;
+    showToast('🎉 Redeemed: '+name+'! Check mess counter.');
+  }
 
-            if (decodedText === lastScanned) {
-                return; // Prevents multiple scans of the same QR
-            }
-            lastScanned = decodedText;
+  function selectMood(btn,emoji,label){
+    document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('selected');});
+    btn.classList.add('selected');
+    var tips={Energetic:'🏃 Great energy! A protein-rich lunch will keep you going.',Happy:'😊 Wonderful! A balanced meal will maintain your mood.',Okay:'😐 Try some fruit — natural sugars can boost your mood!',Tired:'😴 Iron-rich foods like spinach and dal can help revive you.',Unwell:'🤢 Stick to light khichdi, curd and stay hydrated.'};
+    var r=document.getElementById('moodResult');r.textContent=tips[label];r.style.display='block';
+    localStorage.setItem('mood_today',emoji);
+    showToast(emoji+' Mood logged: '+label);
+    saveWellness({mood: label});
+  }
 
-            let studentID = localStorage.getItem("student_id");
+  function togglePledge(el){
+    el.classList.toggle('done');
+    var done=el.classList.contains('done');
+    el.textContent=done?'✓':'';
+    el.nextElementSibling.classList.toggle('done',done);
+    var all=document.querySelectorAll('.pl-chk').length;
+    var comp=document.querySelectorAll('.pl-chk.done').length;
+    document.getElementById('pledgeFill').style.width=(comp/all*100)+'%';
+    document.getElementById('pledgeLabel').textContent=comp+' / '+all+' completed';
+    if(done)showToast('✅ Pledge completed! +5 pts');
+    if(comp===all)showToast('🎉 All pledges done! +20 bonus EcoPoints!');
+  }
 
-            fetch("http://127.0.0.1:8000/scan_qr", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    student_id: studentID,
-                    meal_id: decodedText
-                })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "already_scanned") {
-                        document.getElementById("scanStatus").innerText = "⚠ Already scanned"
-                    } else {
-                        document.getElementById("scanStatus").innerText = "✅ Attendance recorded"
-                    }
-                })
-                .catch(err => {
-                    lastScanned = null;
-                });
+  var waterFilled=5;
+  function buildWaterGlasses(){
+    var w=document.getElementById('waterGlasses');w.innerHTML='';
+    for(var i=0;i<8;i++){
+      var g=document.createElement('div');
+      g.className='glass'+(i<waterFilled?' filled':'');
+      g.innerHTML='<div class="glass-fill"></div>';
+      (function(idx){g.onclick=function(){toggleGlass(idx);};})(i);
+      w.appendChild(g);
+    }
+  }
+  function toggleGlass(idx){
+    var glasses=document.querySelectorAll('.glass');
+    var was=glasses[idx].classList.contains('filled');
+    glasses.forEach(function(g,i){g.classList.toggle('filled',was?i<idx:i<=idx);});
+    waterFilled=document.querySelectorAll('.glass.filled').length;
+    document.getElementById('waterCount').textContent=waterFilled;
+    localStorage.setItem('water_filled',waterFilled);
+    var wg=document.querySelector('.w-goal');if(wg)wg.textContent=waterFilled>=8?'Goal reached! 🎉':(8-waterFilled)+' more glasses to go!';
+    showToast('💧 '+waterFilled+'/8 glasses');
+    saveWellness({hydration: waterFilled});
+  }
+  function addWater(){
+    if(waterFilled<8){
+      waterFilled++;
+      buildWaterGlasses();
+      document.getElementById('waterCount').textContent=waterFilled;
+      localStorage.setItem('water_filled',waterFilled);
+      var wg=document.querySelector('.w-goal');if(wg)wg.textContent=waterFilled>=8?'Goal reached! 🎉':(8-waterFilled)+' more glasses to go!';
+      showToast('💧 Added! '+waterFilled+'/8');
+      if(waterFilled===8)showToast('🎉 Hydration goal reached! +10 EcoPoints');  
+      saveWellness({hydration: waterFilled});
+    } else showToast('🎉 Daily water goal reached!');
+  }
 
+  function changePledge(){
+    var p = prompt("What's your eco pledge for today?");
+    if(p){
+        document.getElementById('pledgeText').textContent = '"' + p + '"';
+        saveWellness({eco_pledge: p});
+        showToast('Pledge updated! 🌱');
+    }
+  }
+
+  function buildNutChart(){
+    var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var carbs=[220,260,240,280,230,250,248];
+    var prot=[55,70,60,75,58,65,62];
+    var fat=[40,55,45,60,42,50,48];
+    var max=280;
+    var chart=document.getElementById('nutChart');chart.innerHTML='';
+    days.forEach(function(d,i){
+      var grp=document.createElement('div');grp.className='bar-grp';
+      var stacks=document.createElement('div');stacks.className='bar-stacks';
+      [[carbs[i],'#1db954'],[prot[i],'#4da6ff'],[fat[i],'#ff9500']].forEach(function(pair){
+        var b=document.createElement('div');b.className='bar';
+        b.style.background=pair[1];b.style.height='0px';
+        stacks.appendChild(b);
+        setTimeout(function(){b.style.height=(pair[0]/max*84).toFixed(0)+'px';},400+i*60);
+      });
+      var lbl=document.createElement('div');lbl.className='bar-lbl';lbl.textContent=d;
+      grp.appendChild(stacks);grp.appendChild(lbl);chart.appendChild(grp);
+    });
+  }
+
+  function buildStreakRow(history){
+    var container=document.getElementById('streakDays');
+    if(!container)return;
+    var today=new Date();
+    var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    container.innerHTML='';
+    for(var i=6;i>=0;i--){
+      var d=new Date(today);
+      d.setDate(today.getDate()-i);
+      var mm=String(d.getMonth()+1).padStart(2,'0');
+      var dd=String(d.getDate()).padStart(2,'0');
+      var key=d.getFullYear()+'-'+mm+'-'+dd;
+      var status=(history||{})[key];
+      var isToday=(i===0);
+      var chip=document.createElement('div');chip.className='day-chip';
+      var dot=document.createElement('div');
+      var lbl=document.createElement('div');lbl.className='day-lbl';
+      lbl.textContent=isToday?'Today':days[d.getDay()];
+      if(isToday){dot.className='day-dot today';dot.textContent='🍽️';lbl.style.color='var(--green)';}
+      else if(status==='clean'){dot.className='day-dot done';dot.textContent='✅';}
+      else{dot.className='day-dot miss';dot.textContent='❌';}
+      chip.appendChild(dot);chip.appendChild(lbl);
+      container.appendChild(chip);
+    }
+  }
+
+  function buildMonthGrid(history){
+    var grid=document.getElementById('monthGrid');
+    var now=new Date();
+    var today=now.getDate();
+    var year=now.getFullYear();
+    var month=String(now.getMonth()+1).padStart(2,'0');
+    var daysInMonth=new Date(year,now.getMonth()+1,0).getDate();
+    grid.innerHTML='';
+    var st=history||{};
+    for(var d=1;d<=daysInMonth;d++){
+      var el=document.createElement('div');el.textContent=d;
+      var dateKey=year+'-'+month+'-'+(d<10?'0'+d:d);
+      var s=st[dateKey];
+      el.className='m-day '+(d>today?'md-future':s==='clean'?'md-clean':s==='partial'?'md-partial':d<today?'md-miss':'md-future');
+      grid.appendChild(el);
+    }
+  }
+
+  function showToast(msg){
+    var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+    clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show');},2500);
+  }
+
+  var lastScanned=null;
+  var qrScanner=null;
+
+  function onScanSuccess(decoded){
+    if(decoded===lastScanned)return;lastScanned=decoded;
+    var s=document.getElementById('scanStatus');s.textContent='⏳ Verifying…';
+    fetch('http://127.0.0.1:8000/scan_qr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:localStorage.getItem('student_id')||'demo',meal_id:decoded})})
+      .then(function(r){return r.json();}).then(function(data){
+        if(data.status==='already_scanned'){s.textContent='⚠️ Already scanned for this meal';}
+        else if(data.status==='invalid_qr'){s.textContent='❌ QR code invalid or expired';}
+        else{
+          s.textContent='✅ Attendance marked! +20 pts';
+          ecoPoints+=20;
+          ['ecoPoints','ptsBadge','psEco'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=ecoPoints;});
         }
+        setTimeout(function(){lastScanned=null;},4000);
+      }).catch(function(){s.textContent='❌ Error verifying scan';setTimeout(function(){lastScanned=null;},4000);});
+  }
 
-        let scanner = new Html5QrcodeScanner(
-            "reader",
-            { fps: 10, qrbox: 250 }
-        )
+  function initQrScanner(){
+    var readerEl=document.getElementById('reader');
+    if(!readerEl||!window.Html5Qrcode){setTimeout(initQrScanner,300);return;}
+    var statusEl=document.getElementById('scanStatus');
+    qrScanner=new Html5Qrcode('reader');
+    var config={
+      fps:10,
+      qrbox:function(w,h){var side=Math.min(w,h)*0.7;return{width:side,height:side};},
+      aspectRatio:1.0
+    };
+    Html5Qrcode.getCameras()
+      .then(function(cameras){
+        if(!cameras||cameras.length===0){
+          readerEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:.78rem;">📷 No camera found on device</div>';
+          return;
+        }
+        // Prefer rear camera on mobile
+        var camId=cameras[cameras.length-1].id;
+        return qrScanner.start(camId,config,onScanSuccess,function(){});
+      })
+      .then(function(){if(statusEl)statusEl.textContent='📷 Point camera at mess QR';})
+      .catch(function(err){
+        console.warn('QR camera error:',err);
+        readerEl.style.height='auto';readerEl.style.background='transparent';
+        readerEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:.78rem;">📷 Camera blocked — allow camera access in browser settings and reload.</div>';
+        if(statusEl)statusEl.textContent='⚠️ Camera permission denied';
+      });
+  }
 
-        scanner.render(onScanSuccess)
-
-    </script>
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',initQrScanner);
+  } else {
+    initQrScanner();
+  }
+</script>
 </body>
-
 </html>
