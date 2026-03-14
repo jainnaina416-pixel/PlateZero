@@ -11,10 +11,13 @@ if PARENT_DIR not in sys.path:
 
 from backend.database import init_db, init_auth_db
 from backend.routes import auth, attendance, student, admin, sanitation, waste, rewards
+# FIX: initialise fraud hash DB on startup so image_hashes.db always exists
+from fraud_detection import init_hash_db
 
 # Initialize databases
 init_db()
 init_auth_db()
+init_hash_db()
 
 app = FastAPI(title="PlateZero Modular API")
 
@@ -42,3 +45,4 @@ def read_root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=True)
+
