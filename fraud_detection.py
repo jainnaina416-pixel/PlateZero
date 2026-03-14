@@ -1,15 +1,15 @@
 # fraud_detection.py
-# Checks: Duplicate image, Similar images (cross-account), Timestamp, Location,
-#         Screen-recapture / photographed-screen anti-spoofing
+# Checks: Duplicate image, Similar images (cross-account), Timestamp, Location
 
 import imagehash
-import numpy as np
-from PIL import Image, ExifTags
+from PIL import Image
 import sqlite3
 import time
+import os
 from geopy.distance import geodesic
 
-HASH_DB = "image_hashes.db"
+# Always store the hash DB next to this script, regardless of working directory
+HASH_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "image_hashes.db")
 
 # ── Meal windows (24-hour) ──────────────────────────────────────────────────
 MEAL_WINDOWS = {
@@ -25,19 +25,6 @@ MAX_DISTANCE_KM  = 0.5                 # allow within 500m
 # ── Similarity threshold (Hamming distance) ────────────────────────────────
 # Two hashes with distance <= HASH_THRESHOLD are considered "too similar"
 HASH_THRESHOLD = 10
-
-# ── Screen-recapture detection thresholds ─────────────────────────────────
-# How many high-amplitude peaks (excluding DC) to flag as a screen pattern
-FFT_PEAK_THRESHOLD   = 5      # count peaks above ratio
-FFT_PEAK_RATIO       = 0.85   # only very strong peaks count
-# Noise floor: real photos have stddev > this in a uniform-region crop
-NOISE_STDDEV_MIN     = 1.5    # lowered to avoid flagging high-quality sharp images
-# EXIF Software tags that indicate a screenshot / screen-captured image
-SCREEN_SOFTWARE_TAGS = {
-    "adobe", "photoshop", "lightroom", "snagit", "greenshot", "screenpresso",
-    "windows photo", "snipping", "screenshot", "preview", "gyroflow",
-    "paint", "gimp", "canva", "figma", "sketch",
-}
 
 
 def init_hash_db():
@@ -129,113 +116,4 @@ def check_duplicate_or_similar(image_path: str, student_id: str, meal: str) -> d
     conn.commit()
     conn.close()
     return {"ok": True}
-def check_screen_capture(image_path: str) -> dict:
-    """
-    Anti-spoofing: detect whether the uploaded photo was taken of a SCREEN
-    (e.g. a laptop/phone displaying a plate image) rather than a real plate.
 
-    Three independent signals are checked; any ONE failing is enough to flag.
-
-    1. FFT moiré peak detection
-       Screens have a regular backlit pixel grid that produces strong periodic
-       frequencies in the 2-D FFT of the luminance channel. Real photographs
-       of physical objects do NOT show this pattern.
-
-    2. EXIF Software tag
-       Screenshots taken with OS tools or edited in graphics software carry a
-       'Software' EXIF tag (e.g. "Windows Photo Viewer", "SnagIt", "Preview").
-       Raw camera captures usually have the camera firmware name instead.
-
-    3. Sensor-noise floor
-       Physical camera sensors add a small amount of random noise to every
-       pixel. Photos of screens are rendered by a deterministic pixel grid
-       and therefore have an abnormally low noise floor in flat areas.
-
-    Returns:
-      { "ok": True }                     – looks like a genuine camera shot
-      { "ok": False, "reason": "..." }   – likely photographed from a screen
-    """
-    try:
-        img = Image.open(image_path).convert("RGB")
-    except Exception as e:
-        return {"ok": False, "reason": f"Could not open image: {e}"}
-
-    # ── Signal 1: EXIF Software tag ───────────────────────────────────────
-    try:
-        exif = img.getexif()
-        if exif:
-            # EXIF tag for Software is 0x0133 (307)
-            software_val = str(exif.get(307, "")).lower()
-            if software_val:
-                for bad in SCREEN_SOFTWARE_TAGS:
-                    if bad in software_val:
-                        return {
-                            "ok": False,
-                            "reason": (
-                                "Image appears to be a screenshot or edited file "
-                                f"(software tag: '{software_val}'). "
-                                "Please capture a live photo of the plate."
-                            )
-                        }
-    except Exception:
-        pass  # No EXIF at all is fine — press on
-
-    # ── Signal 2: FFT moiré / screen-grid detection ───────────────────────
-    try:
-        # Work on luminance channel, resize for speed
-        gray = np.array(img.convert("L").resize((512, 512)), dtype=np.float32)
-
-        # 2-D FFT → shift DC to centre → magnitude spectrum
-        fft_mag = np.abs(np.fft.fftshift(np.fft.fft2(gray)))
-
-        # Blank out the central DC region (low-frequency background)
-        cy, cx = fft_mag.shape[0] // 2, fft_mag.shape[1] // 2
-        dc_radius = 20
-        y_idx, x_idx = np.ogrid[-cy:fft_mag.shape[0]-cy, -cx:fft_mag.shape[1]-cx]
-        dc_mask = (x_idx**2 + y_idx**2) <= dc_radius**2
-        fft_no_dc = fft_mag.copy()
-        fft_no_dc[dc_mask] = 0.0
-
-        # Count peaks that are conspicuously above the local background
-        max_val  = fft_no_dc.max()
-        threshold = max_val * FFT_PEAK_RATIO
-        peaks = fft_no_dc[fft_no_dc > threshold]
-        peak_count = int(len(peaks))
-
-        if peak_count > FFT_PEAK_THRESHOLD:
-            return {
-                "ok": False,
-                "reason": (
-                    "Screen-recapture pattern detected in the image (periodic "
-                    f"frequency peaks: {peak_count}). "
-                    "Please photograph your actual plate, not a screen showing one."
-                )
-            }
-    except Exception:
-        pass  # If numpy/FFT fails, skip this check gracefully
-
-    # ── Signal 3: Sensor noise floor ──────────────────────────────────────
-    try:
-        # Sample a 64×64 patch from the centre of the image
-        w, h   = img.size
-        left   = (w - 64) // 2
-        top    = (h - 64) // 2
-        patch  = np.array(
-            img.crop((left, top, left + 64, top + 64)).convert("L"),
-            dtype=np.float32
-        )
-        noise_std = float(np.std(patch))
-
-        if noise_std < NOISE_STDDEV_MIN:
-            return {
-                "ok": False,
-                "reason": (
-                    f"Image appears artificially smooth (noise level: {noise_std:.2f}), "
-                    "which is typical of a screen capture. "
-                    "Please take a direct photo of your plate."
-                )
-            }
-    except Exception:
-        pass
-
-    return {"ok": True}
